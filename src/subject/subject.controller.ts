@@ -4,6 +4,6 @@ import { Controller, Get } from '@nestjs/common';
 export class SubjectController {
   @Get()
   async getAllSubject() {
-    return 'hello';
+    return 'hello world';
   }
 }
