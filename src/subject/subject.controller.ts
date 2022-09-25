@@ -1,4 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('subject')
-export class SubjectController {}
+export class SubjectController {
+  @Get()
+  async getAllSubject() {
+    return 'hello world';
+  }
+}
