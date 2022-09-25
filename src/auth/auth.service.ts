@@ -3,25 +3,62 @@ import { PrismaService } from '../prisma/prisma.service';
 import { SignInDto } from './dtos/signIn.dto';
 import { EmployeeService } from '../employee/employee.service';
 import * as bcrypt from 'bcrypt';
-
+import { TokenPayload } from './interfaces/tokenPayload.interface';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Employee } from '@prisma/client';
+import { EmailConfirmationService } from '../email/emailConfirmation.service';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly employeeService: EmployeeService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly emailConfirmService: EmailConfirmationService,
   ) {}
-  async signIn(payload: SignInDto) {
+  async getAuthenticatedUser(payload: SignInDto) {
     const employee = await this.employeeService.getEmployeeByUnique(payload.email);
-    const isCorrectPassword = await this.isCorrectPassword(
-      payload.password,
-      employee.password,
-    );
-    if (!isCorrectPassword) {
-      throw new HttpException('Mật khẩu hoặc Email bị lỗi', HttpStatus.BAD_REQUEST);
-    }
+    await this.verifyPassword(payload.password, employee.password);
     return employee;
   }
-  isCorrectPassword(passwordPlanText: string, passwordHashed: string) {
-    return bcrypt.compare(passwordPlanText, passwordHashed);
+  async verifyPassword(passwordPlanText: string, passwordHashed: string) {
+    const isMatchingPassword = await bcrypt.compare(passwordPlanText, passwordHashed);
+    if (!isMatchingPassword) {
+      throw new HttpException('Mật khẩu hoặc Email bị lỗi', HttpStatus.BAD_REQUEST);
+    }
+  }
+  getCookieWithJwtToken(employeeId: number) {
+    const payload: TokenPayload = { employeeId };
+    const token = this.jwtService.sign(payload);
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_EXPIRATION_TIME',
+    )}`;
+  }
+  getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
+  async resetPassword(employee: Employee, payload: ResetPasswordDto) {
+    await this.getAuthenticatedUser({
+      email: employee.email,
+      password: payload.oldPassword,
+    });
+    return this.prismaService.employee.update({
+      where: {
+        id: employee.id,
+      },
+      data: {
+        password: payload.newPassword,
+      },
+    });
+  }
+  async forgotPassword(email: string) {
+    const content = this.getContentForgotPassword();
+    await this.emailConfirmService.sendVerificationLink(email, content, 'RESET PASSWORD');
+    return 'Check Mail box';
+  }
+  getContentForgotPassword() {
+    return `Please click hear make reset your password`;
   }
 }

@@ -1,0 +1,35 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreatePositionDto } from '../position/dtos/createPosition.dto';
+
+@Injectable()
+export class DepartmentService {
+  constructor(private readonly prismaService: PrismaService) {}
+  createDepartment(payload: CreatePositionDto) {
+    return this.prismaService.department.create({
+      data: payload,
+    });
+  }
+  getListDepartment() {
+    return this.prismaService.department.findMany();
+  }
+  async getDepartment(id: number) {
+    const department = await this.prismaService.department.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!department) {
+      throw new NotFoundException('Không tìm thấy chức vụ');
+    }
+    return department;
+  }
+  async deleteDepartment(id: number) {
+    await this.getDepartment(id);
+    return this.prismaService.department.delete({
+      where: {
+        id,
+      },
+    });
+  }
+}

@@ -7,15 +7,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   async onModuleInit() {
     await this.$connect();
     this.$use(async (params: Prisma.MiddlewareParams, next) => {
-      const {
-        model,
-        action,
-        args: { data: payload },
-      } = params;
+      const { model, action, args } = params;
       if (
-        model === MODEL.STUDENT &&
+        (model === MODEL.STUDENT || model === MODEL.EMPLOYEE) &&
         (action === ACTION_CRUD.CREATE || action === ACTION_CRUD.UPDATE)
       ) {
+        const payload = args.data;
         if (payload.password) {
           payload.password = await bcrypt.hash(
             payload.password,
