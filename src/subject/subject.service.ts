@@ -10,20 +10,20 @@ export class SubjectService {
   async createSubject(payload: CreateSubjectDto) {
     const subject = await this.prisma.subject.findFirst({
       where: {
-        id : payload.id,
-        name: payload.nameSubject,
+        name: payload.name,
+        id: payload.id,
       },
     });
     if (subject) {
-      throw new HttpException('Subject was exist', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Đã có subject tồn tại', HttpStatus.BAD_REQUEST);
     }
-    return this.prisma.subject.create({ data: payload });
+    return this.prisma.subject.create({ data: payload }); 
   }
   getListSubject() {
     return this.prisma.subject.findMany();
   }
   async getSubjectByUnique(value: string | number) {
-    const subject= await this.prisma.subject.findFirst({
+    const subject = await this.prisma.subject.findFirst({
       where: {
         OR:
           typeof value === 'string'
