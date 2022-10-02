@@ -8,5 +8,6 @@ import { MajorModule } from '../major/major.module';
   imports: [PrismaModule, MajorModule],
   controllers: [StudentController],
   providers: [StudentService],
+  exports: [StudentService],
 })
 export class StudentModule {}
