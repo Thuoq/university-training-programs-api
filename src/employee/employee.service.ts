@@ -63,7 +63,7 @@ export class EmployeeService {
     return this.prismaService.employee.findMany();
   }
   createEmployeePosition(employeeId: number, positionId: number) {
-    return this.prismaService.position_Employee.create({
+    return this.prismaService.positionEmployee.create({
       data: {
         employeeId,
         positionId,
