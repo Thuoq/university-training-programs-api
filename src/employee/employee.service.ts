@@ -15,7 +15,10 @@ export class EmployeeService {
   async getEmployeeByUnique(value: string | number) {
     const emp = await this.prismaService.employee.findFirst({
       where: {
-        OR: [typeof value === 'number' ? { id: value } : { email: value }],
+        OR:
+          typeof value === 'number'
+            ? [{ id: value }]
+            : [{ employeeCode: value }, { email: value }],
       },
       include: {
         faculty: {

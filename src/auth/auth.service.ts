@@ -19,7 +19,7 @@ export class AuthService {
     private readonly emailConfirmService: EmailConfirmationService,
   ) {}
   async getAuthenticatedUser(payload: SignInDto) {
-    const employee = await this.employeeService.getEmployeeByUnique(payload.email);
+    const employee = await this.employeeService.getEmployeeByUnique(payload.employeeCode);
     await this.verifyPassword(payload.password, employee.password);
     return employee;
   }
@@ -39,11 +39,7 @@ export class AuthService {
   getCookieForLogOut() {
     return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
-  async resetPassword(employee: Employee, payload: ResetPasswordDto) {
-    await this.getAuthenticatedUser({
-      email: employee.email,
-      password: payload.oldPassword,
-    });
+  resetPassword(employee: Employee, payload: ResetPasswordDto) {
     return this.prismaService.employee.update({
       where: {
         id: employee.id,

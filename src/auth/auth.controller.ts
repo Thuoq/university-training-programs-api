@@ -41,6 +41,7 @@ export class AuthController {
     response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     return response.sendStatus(HttpStatus.OK);
   }
+  @UseGuards(JwtAuthenticationGuard)
   @Patch('reset-password')
   async resetPassword(
     @Req() request: RequestWithEmployee,

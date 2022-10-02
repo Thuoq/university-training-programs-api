@@ -7,12 +7,13 @@ import { AuthService } from './auth.service';
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authenticationService: AuthService) {
     super({
-      usernameField: 'email',
+      usernameField: 'employeeCode',
     });
   }
-  async validate(email: string, password: string) {
+  async validate(employeeCode: string, password: string) {
+    // TODO: NEED VALIDATE EMPLOYEE CODE
     return this.authenticationService.getAuthenticatedUser({
-      email,
+      employeeCode,
       password,
     });
   }
