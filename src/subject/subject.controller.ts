@@ -11,7 +11,9 @@ import {
 } from '@nestjs/common';
 import { CreateSubjectDto } from './dtos/createSubject.dto';
 import { SubjectService } from './subject.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Subjects')
 @Controller('subjects')
 export class SubjectController {
   constructor(private readonly subjectService: SubjectService) {}

@@ -11,7 +11,9 @@ import {
 } from '@nestjs/common';
 import { CreateScoreDto } from './dtos/createScore.dto';
 import { ScoreService } from './score.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Scores')
 @Controller('scores')
 export class ScoreController {
   constructor(private readonly scoreService: ScoreService) {}

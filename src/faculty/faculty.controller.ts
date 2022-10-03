@@ -2,6 +2,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestj
 import { FacultyService } from './faculty.service';
 import { Faculty } from '@prisma/client';
 import { createFacultyDto } from './dtos/createFaculty.dto';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Faculties')
 @Controller('faculties')
 export class FacultyController {
   constructor(private readonly facultyService: FacultyService) {}

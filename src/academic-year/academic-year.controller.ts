@@ -2,6 +2,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestj
 import { AcademicYear } from '@prisma/client';
 import { createAcademicYearDto } from './dtos/createAcademicYear.dto';
 import { AcademicYearService } from './academic-year.service';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Academic Year')
 @Controller('academic-year')
 export class AcademicYearController {
   constructor(private readonly academicYearService: AcademicYearService) {}

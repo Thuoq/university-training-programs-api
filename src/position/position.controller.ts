@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestj
 import { CreatePositionDto } from './dtos/createPosition.dto';
 import { PositionService } from './position.service';
 import { Position } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Positions')
 @Controller('positions')
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}

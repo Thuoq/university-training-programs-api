@@ -17,6 +17,9 @@ import { Response } from 'express';
 import JwtAuthenticationGuard from './guard/jwt-authentication.guard';
 import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

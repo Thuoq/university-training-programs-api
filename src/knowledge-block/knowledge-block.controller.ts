@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestj
 import { KnowedgeBlock } from '@prisma/client';
 import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 import { KnowledgeBlockService } from './knowledge-block.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Knowledge block')
 @Controller('knowledge-block')
 export class KnowledgeBlockController {
   constructor(private readonly knowledgeBlockService: KnowledgeBlockService) {}
