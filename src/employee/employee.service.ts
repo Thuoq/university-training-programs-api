@@ -70,4 +70,15 @@ export class EmployeeService {
       },
     });
   }
+
+  async updatePassword(employeeId: number, newPassword) {
+    return this.prismaService.employee.update({
+      where: {
+        id: employeeId,
+      },
+      data: {
+        password: newPassword,
+      },
+    });
+  }
 }

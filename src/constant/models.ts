@@ -3,7 +3,7 @@ export const MODEL = {
   EMPLOYEE: 'Employee',
 };
 export const ACTION_CRUD = {
-  UPDATE: 'patch',
+  UPDATE: 'update',
   DELETE: 'delete',
   CREATE: 'create',
   GET: 'get',

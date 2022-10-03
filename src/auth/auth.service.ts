@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Employee } from '@prisma/client';
 import { EmailConfirmationService } from '../email/emailConfirmation.service';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { UpdatePasswordDto } from './dtos/updatePassword.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,17 +19,20 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly emailConfirmService: EmailConfirmationService,
   ) {}
+
   async getAuthenticatedUser(payload: SignInDto) {
     const employee = await this.employeeService.getEmployeeByUnique(payload.employeeCode);
     await this.verifyPassword(payload.password, employee.password);
     return employee;
   }
+
   async verifyPassword(passwordPlanText: string, passwordHashed: string) {
     const isMatchingPassword = await bcrypt.compare(passwordPlanText, passwordHashed);
     if (!isMatchingPassword) {
       throw new HttpException('Mật khẩu hoặc Email bị lỗi', HttpStatus.BAD_REQUEST);
     }
   }
+
   getCookieWithJwtToken(employeeId: number) {
     const payload: TokenPayload = { employeeId };
     const token = this.jwtService.sign(payload);
@@ -36,9 +40,11 @@ export class AuthService {
       'JWT_EXPIRATION_TIME',
     )}`;
   }
+
   getCookieForLogOut() {
     return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
+
   resetPassword(employee: Employee, payload: ResetPasswordDto) {
     return this.prismaService.employee.update({
       where: {
@@ -49,12 +55,27 @@ export class AuthService {
       },
     });
   }
+
   async forgotPassword(email: string) {
+    await this.employeeService.getEmployeeByUnique(email);
     const content = this.getContentForgotPassword();
     await this.emailConfirmService.sendVerificationLink(email, content, 'RESET PASSWORD');
     return 'Check Mail box';
   }
+
   getContentForgotPassword() {
     return `Please click hear make reset your password`;
+  }
+
+  async confirmationToken(token: string) {
+    await this.emailConfirmService.decodeConfirmationToken(token);
+    return 'Ok';
+  }
+
+  async updatePasswordAuth(payload: UpdatePasswordDto) {
+    const email = await this.emailConfirmService.decodeConfirmationToken(payload.token);
+    const employee = await this.employeeService.getEmployeeByUnique(email);
+    await this.verifyPassword(payload.oldPassword, employee.password);
+    return this.employeeService.updatePassword(employee.id, payload.newPassword);
   }
 }
