@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMajorDto {
@@ -6,4 +6,19 @@ export class CreateMajorDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  facultyId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  sectionId: number;
 }

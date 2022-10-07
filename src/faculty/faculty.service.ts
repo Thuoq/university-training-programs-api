@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from '../position/dtos/createPosition.dto';
+import { createFacultyDto } from './dtos/createFaculty.dto';
 
 @Injectable()
 export class FacultyService {
   constructor(private readonly prismaService: PrismaService) {}
-  createFaculty(payload: CreatePositionDto) {
+  createFaculty(payload: createFacultyDto) {
     return this.prismaService.faculty.create({
       data: payload,
     });

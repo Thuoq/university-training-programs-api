@@ -37,6 +37,11 @@ export class CreateSubjectDto {
   numberOfCreditsRequirement: number;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+
+  @ApiProperty()
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

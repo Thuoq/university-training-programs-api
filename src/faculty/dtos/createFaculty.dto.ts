@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class createFacultyDto {
@@ -6,4 +6,9 @@ export class createFacultyDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  sectionId;
 }
