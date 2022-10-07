@@ -10,5 +10,5 @@ export class createFacultyDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  sectionId;
+  sectionId: number;
 }

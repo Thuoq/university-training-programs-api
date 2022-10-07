@@ -16,6 +16,9 @@ import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
 import { AcademicYearModule } from './academic-year/academic-year.module';
 import { KnowledgeBlockModule } from './knowledge-block/knowledge-block.module';
+import { TrainingProgramModule } from './training-program/training-program.module';
+import { TrainingProgramContentModule } from './training-program-content/training-program-content.module';
+import { SectionModule } from './section/section.module';
 import ConfigOption from './config/index';
 
 @Module({
@@ -34,6 +37,9 @@ import ConfigOption from './config/index';
     EmailModule,
     AcademicYearModule,
     KnowledgeBlockModule,
+    TrainingProgramModule,
+    TrainingProgramContentModule,
+    SectionModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],
