@@ -40,4 +40,9 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @IsNumber()
   positionId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  roleId: number;
 }
