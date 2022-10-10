@@ -16,6 +16,8 @@ import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
 import { AcademicYearModule } from './academic-year/academic-year.module';
 import { KnowledgeBlockModule } from './knowledge-block/knowledge-block.module';
+import { RoleModule } from './role/role.module';
+import { ResourceModule } from './resource/resource.module';
 import ConfigOption from './config/index';
 
 @Module({
@@ -34,6 +36,8 @@ import ConfigOption from './config/index';
     EmailModule,
     AcademicYearModule,
     KnowledgeBlockModule,
+    RoleModule,
+    ResourceModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

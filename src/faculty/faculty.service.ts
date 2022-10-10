@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePositionDto } from '../position/dtos/createPosition.dto';
 import { createFacultyDto } from './dtos/createFaculty.dto';
 
 @Injectable()
@@ -21,7 +20,7 @@ export class FacultyService {
       },
     });
     if (!faculty) {
-      throw new NotFoundException('Không tìm thấy chức vụ');
+      throw new NotFoundException('Không tìm thấy faculty');
     }
     return faculty;
   }

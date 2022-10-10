@@ -20,7 +20,7 @@ export class DepartmentService {
       },
     });
     if (!department) {
-      throw new NotFoundException('Không tìm thấy chức vụ');
+      throw new NotFoundException('Không tìm thấy department');
     }
     return department;
   }
