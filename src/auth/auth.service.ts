@@ -45,7 +45,8 @@ export class AuthService {
     return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 
-  resetPassword(employee: Employee, payload: ResetPasswordDto) {
+  async resetPassword(employee: Employee, payload: ResetPasswordDto) {
+    await this.verifyPassword(payload.oldPassword, employee.password);
     return this.prismaService.employee.update({
       where: {
         id: employee.id,
