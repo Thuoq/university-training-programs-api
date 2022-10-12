@@ -60,7 +60,22 @@ export class EmployeeService {
     return employee;
   }
   getListEmployee() {
-    return this.prismaService.employee.findMany();
+    return this.prismaService.employee.findMany({
+      include: {
+        role: true,
+        positionEmployees: {
+          include: {
+            position: true,
+          },
+        },
+        faculty: {
+          include: {
+            section: true,
+          },
+        },
+        department: true,
+      },
+    });
   }
   createEmployeePosition(employeeId: number, positionId: number) {
     return this.prismaService.positionEmployee.create({
