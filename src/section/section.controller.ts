@@ -3,8 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateSectionDto } from './dtos/createSection.dto';
 import { SectionService } from './section.service';
 
-@ApiTags('Section')
-@Controller('section')
+@ApiTags('Sections')
+@Controller('sections')
 export class SectionController {
     constructor(private readonly sectionService: SectionService){}
 

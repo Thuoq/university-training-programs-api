@@ -1,13 +1,21 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { AcademicYearService } from 'src/academic-year/academic-year.service';
+import { MajorService } from 'src/major/major.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrainingProgramDto } from './dtos/createTrainingProgram.dto';
 
 @Injectable()
 export class TrainingProgramService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly majorService: MajorService,
+        private readonly academicYearService: AcademicYearService,
+    ) {}
 
     async createTrainingProgram(payload: CreateTrainingProgramDto){
-            return this.prismaService.trainingProgram.create({data: payload});
+        await this.majorService.getMajorUnique(payload.marjorId),
+        await this.academicYearService.getAcademicYear(payload.academicYearId)
+        return this.prismaService.trainingProgram.create({data: payload});
     }
 
     getListTrainingProgram(){

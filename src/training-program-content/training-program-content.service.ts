@@ -13,12 +13,16 @@ export class TrainingProgramContentService {
     ){}
 
     async createTrainingProgramContent(payload: CreateTrainingProgramContentDto){
-        await this.trainingProgramService.getTrainingProgramByUnique(payload.trainingProgramId);
-        await this.subjectService.getSubjectById(payload.subjectId);
         const trainingProgram = await this.prismaService.trainingProgramContent.findFirst({
             where: {
                 trainingProgramId: payload.trainingProgramId,
                 subjectId: payload.subjectId,
+                subject:{
+                    id: payload.subjectId
+                },
+                trainingProgram:{
+                    id:payload.trainingProgramId
+                },
             },
         });
 
