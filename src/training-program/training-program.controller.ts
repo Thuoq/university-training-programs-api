@@ -3,8 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateTrainingProgramDto } from './dtos/createTrainingProgram.dto';
 import { TrainingProgramService } from './training-program.service';
 
-@ApiTags('Training Program')
-@Controller('training-program')
+@ApiTags('Training Programs')
+@Controller('training-programs')
 export class TrainingProgramController {
     constructor(private readonly trainingProgramService: TrainingProgramService){}
 
