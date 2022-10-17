@@ -6,4 +6,9 @@ export class CreateSectionDto{
     @IsNotEmpty()
     @IsString()
     name : string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    code : string;
 }   

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePositionDto {
@@ -6,4 +6,9 @@ export class CreatePositionDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  code: string;
 }

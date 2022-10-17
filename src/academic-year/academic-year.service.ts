@@ -10,9 +10,11 @@ export class AcademicYearService {
       data: payload,    
     });
   }
+
   getListAcademicYear() {
     return this.prismaService.academicYear.findMany();
   }
+
   async getAcademicYear(id: number) {
     const academicYear = await this.prismaService.academicYear.findUnique({
       where: {
@@ -31,5 +33,10 @@ export class AcademicYearService {
         id,
       },
     });
+  }
+
+  async updateAcademicYear(id: number, payload: createAcademicYearDto){
+    await this.getAcademicYear(id);
+    return this.prismaService.academicYear.updateMany({data:payload});
   }
 }

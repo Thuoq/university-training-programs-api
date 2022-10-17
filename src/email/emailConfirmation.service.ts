@@ -11,25 +11,17 @@ export class EmailConfirmationService {
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
   ) {}
-  public sendVerificationLink(email: string, content: string, subject: string) {
-    const payload: VerificationTokenPayload = { email };
-    const token = this.jwtService.sign(payload, {
-      secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
-      expiresIn: `${+this.configService.get('JWT_VERIFICATION_TOKEN_EXPIRATION_TIME')}s`,
-    });
 
-    const url = `${this.configService.get('EMAIL_CONFIRMATION_URL')}?token=${token}`;
-
-    const text = `${content}, click here: ${url}`;
-
+  public sendMail(email: string, password: string, subject: string){
     return this.emailService.sendMail({
       to: email,
       subject,
-      text,
+      text: password,
     });
   }
+
   async decodeConfirmationToken(token: string) {
-    try {
+    try { 
       const payload = await this.jwtService.verify(token, {
         secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
       });
