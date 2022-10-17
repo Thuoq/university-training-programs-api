@@ -18,6 +18,9 @@ import { AcademicYearModule } from './academic-year/academic-year.module';
 import { KnowledgeBlockModule } from './knowledge-block/knowledge-block.module';
 import { RoleModule } from './role/role.module';
 import { ResourceModule } from './resource/resource.module';
+import { TrainingProgramModule } from './training-program/training-program.module';
+import { TrainingProgramContentModule } from './training-program-content/training-program-content.module';
+import { SectionModule } from './section/section.module';
 import ConfigOption from './config/index';
 
 @Module({
@@ -38,6 +41,9 @@ import ConfigOption from './config/index';
     KnowledgeBlockModule,
     RoleModule,
     ResourceModule,
+    TrainingProgramModule,
+    TrainingProgramContentModule,
+    SectionModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],
