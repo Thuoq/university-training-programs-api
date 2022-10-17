@@ -10,6 +10,8 @@ import { Employee } from '@prisma/client';
 import { EmailConfirmationService } from '../email/emailConfirmation.service';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { UpdatePasswordDto } from './dtos/updatePassword.dto';
+import { match } from 'assert';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -57,11 +59,26 @@ export class AuthService {
     });
   }
 
+  createDefaulPassword(){
+    let result = "";
+    for(let i = 0; i < 6; i++){
+      let temp = Math.floor(Math.random() * 101);
+      result += temp;
+    }
+    return result;
+  }
+
   async forgotPassword(email: string) {
-    await this.employeeService.getEmployeeByUnique(email);
-    const content = this.getContentForgotPassword();
-    await this.emailConfirmService.sendVerificationLink(email, content, 'RESET PASSWORD');
-    return 'Check Mail box';
+    const employee = await this.employeeService.getEmployeeByUnique(email);
+    
+    const content = `Training Program Management
+    \nYour new password: ${this.createDefaulPassword()}
+    \n Please return to the page to sign in`;
+
+    this.employeeService.updatePassword(employee.id, content);
+    this.emailConfirmService.sendMail(email, content, 'RESET PASSWORD');  
+
+    return 'Nhà trường đã cấp lại mật khẩu cho bạn trong Email.Hãy kiểm tra Email và đăng nhập lại!';
   }
 
   getContentForgotPassword() {
@@ -77,6 +94,6 @@ export class AuthService {
     const email = await this.emailConfirmService.decodeConfirmationToken(payload.token);
     const employee = await this.employeeService.getEmployeeByUnique(email);
     await this.verifyPassword(payload.oldPassword, employee.password);
-    return this.employeeService.updatePassword(employee.id, payload.newPassword);
+    return this.employeeService.updatePassword(employee.id, payload.newPassword); 
   }
 }
