@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { createAcademicYearDto } from 'src/academic-year/dtos/createAcademicYear.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from './dtos/createPosition.dto';
 
 @Injectable()
 export class PositionService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
   createPosition(payload: CreatePositionDto) {
     return this.prismaService.position.create({
       data: payload,
@@ -30,6 +31,16 @@ export class PositionService {
       where: {
         id,
       },
+    });
+  }
+
+  async updatePosition(id: number, payload: CreatePositionDto) {
+    await this.getPosition(id);
+    return this.prismaService.position.update({
+      where: {
+        id: id,
+      },
+      data: payload
     });
   }
 }
