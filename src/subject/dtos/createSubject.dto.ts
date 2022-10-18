@@ -42,6 +42,10 @@ export class CreateSubjectDto {
   code: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  coefficient: number;
+  @ApiProperty()
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

@@ -68,11 +68,7 @@ export class EmployeeService {
             position: true,
           },
         },
-        faculty: {
-          include: {
-            section: true,
-          },
-        },
+        faculty: true,
         department: true,
       },
     });
