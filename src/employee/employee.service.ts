@@ -48,8 +48,12 @@ export class EmployeeService {
     return emp;
   }
   async createEmployee(payload: CreateEmployeeDto) {
-    const facultyPromise = this.facultyService.getFaculty(payload.facultyId);
-    const departmentPromise = this.departmentService.getDepartment(payload.departmentId);
+    const facultyPromise = payload.facultyId
+      ? this.facultyService.getFaculty(payload.facultyId)
+      : [];
+    const departmentPromise = payload.departmentId
+      ? this.departmentService.getDepartment(payload.departmentId)
+      : [];
     const positionPromise = this.positionService.getPosition(payload.positionId);
     await Promise.all([facultyPromise, departmentPromise, positionPromise]);
     const { positionId, ...bodyCreateEmployee } = payload;
@@ -70,6 +74,7 @@ export class EmployeeService {
         },
         faculty: true,
         department: true,
+        section: true,
       },
     });
   }

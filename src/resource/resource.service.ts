@@ -20,8 +20,8 @@ export class ResourceService {
   getListResource() {
     return this.prismaService.resource.findMany();
   }
-  createResource(payload: createResourceDto) {
-    const exist = this.prismaService.resource.findUnique({
+  async createResource(payload: createResourceDto) {
+    const exist = await this.prismaService.resource.findUnique({
       where: {
         code: payload.code,
       },
