@@ -34,11 +34,11 @@ export class FacultyService {
   }
   async updateFaculty(id: number, payload: createFacultyDto) {
     await this.getFaculty(id);
-    return this.prismaService.faculty.update({
-      where: {
-        id: id,
-      },
-      data: payload
-    });
+      return this.prismaService.faculty.update({
+        where: {
+          id: id,
+        },
+        data: payload
+      });
   }
 }

@@ -26,6 +26,6 @@ export class FacultyController {
   }
   @Put(':id')
   async updateFaculty(@Param('id', ParseIntPipe) id: number, @Body() body: createFacultyDto) {
-    return await this.facultyService.updateFaculty(id, body);
+      return await this.facultyService.updateFaculty(id, body);
   }
 }
