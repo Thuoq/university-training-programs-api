@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { KnowedgeBlock } from '@prisma/client';
 import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 import { KnowledgeBlockService } from './knowledge-block.service';
@@ -7,7 +7,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Knowledge block')
 @Controller('knowledge-block')
 export class KnowledgeBlockController {
-  constructor(private readonly knowledgeBlockService: KnowledgeBlockService) {}
+  constructor(private readonly knowledgeBlockService: KnowledgeBlockService) { }
   @Post()
   async createKnowledgeBlock(
     @Body() body: createKnowledgeBlockDto,
@@ -27,5 +27,9 @@ export class KnowledgeBlockController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<KnowedgeBlock> {
     return await this.knowledgeBlockService.deleteKnowledgeBlock(id);
+  }
+  @Put(':id')
+  async updateKnowledgeBlock(@Param('id', ParseIntPipe) id: number, @Body() body: createKnowledgeBlockDto) {
+    return await this.knowledgeBlockService.updateKnowledgeBlock(id, body);
   }
 }
