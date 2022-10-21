@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { MajorService } from './major.service';
 import { CreateMajorDto } from './dtos/createMajor.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -6,7 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Major')
 @Controller('majors')
 export class MajorController {
-  constructor(private readonly majorService: MajorService) {}
+  constructor(private readonly majorService: MajorService) { }
   @Get()
   async getListMajor() {
     return await this.majorService.getListMajor();
@@ -22,5 +22,9 @@ export class MajorController {
   @Delete(':id')
   async deleteMajor(@Param('id', ParseIntPipe) id: number) {
     return await this.majorService.deleteMajor(id);
+  }
+  @Put(':id')
+  async updateMajor(@Param('id', ParseIntPipe) id: number, @Body() body: CreateMajorDto) {
+    return await this.majorService.updateMajor(id, body);
   }
 }
