@@ -4,7 +4,7 @@ import { CreateMajorDto } from './dtos/createMajor.dto';
 
 @Injectable()
 export class MajorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
   getListMajor() {
     return this.prisma.major.findMany();
   }
@@ -27,6 +27,15 @@ export class MajorService {
       where: {
         id,
       },
+    });
+  }
+  async updateMajor(id: number, payload: CreateMajorDto) {
+    await this.getMajorUnique(id);
+    return this.prisma.major.update({
+      where: {
+        id: id,
+      },
+      data: payload
     });
   }
 }
