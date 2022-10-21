@@ -48,7 +48,7 @@ export class CreateEmployeeDto {
   roleId: number;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsNumber()
-  sectionId: number;
+  @IsOptional()
+  sectionId?: number;
 }

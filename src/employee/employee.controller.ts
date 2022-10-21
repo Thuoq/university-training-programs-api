@@ -16,7 +16,7 @@ export class EmployeeController {
     return await this.employeeService.createEmployee(body);
   }
   @Get(':id')
-  async getEmployee(@Param('id', ParseIntPipe) id: number) {
+  async getEmployee(@Param('id') id: number | string) {
     return await this.employeeService.getEmployeeByUnique(id);
   }
 }

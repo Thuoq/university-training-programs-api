@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsString, Min } from 'class-validator';
+import { IsDate, IsNotEmpty, IsNumber, IsPositive, IsString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class createAcademicYearDto {
@@ -6,11 +6,18 @@ export class createAcademicYearDto {
   @IsString()
   @ApiProperty()
   name: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  code: string;
 
   @ApiProperty()
-  @IsNumber()
-  @IsPositive()
-  @Min(2000)
+  @IsDate()
   @IsNotEmpty()
-  year: number;
+  startYear: Date;
+
+  @ApiProperty()
+  @IsDate()
+  @IsNotEmpty()
+  finishYear: Date;
 }

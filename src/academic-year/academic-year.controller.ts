@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { AcademicYear } from '@prisma/client';
 import { createAcademicYearDto } from './dtos/createAcademicYear.dto';
 import { AcademicYearService } from './academic-year.service';
@@ -26,7 +35,10 @@ export class AcademicYearController {
   }
 
   @Put(':id')
-  async updateAcademicYear(@Param('id',ParseIntPipe) id:number, @Body() body: createAcademicYearDto){
-    return await this.academicYearService.updateAcademicYear(id,body);
+  async updateAcademicYear(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: createAcademicYearDto,
+  ) {
+    return await this.academicYearService.updateAcademicYear(id, body);
   }
 }
