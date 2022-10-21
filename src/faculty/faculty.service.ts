@@ -4,7 +4,7 @@ import { createFacultyDto } from './dtos/createFaculty.dto';
 
 @Injectable()
 export class FacultyService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
   createFaculty(payload: createFacultyDto) {
     return this.prismaService.faculty.create({
       data: payload,
@@ -31,5 +31,14 @@ export class FacultyService {
         id,
       },
     });
+  }
+  async updateFaculty(id: number, payload: createFacultyDto) {
+    await this.getFaculty(id);
+      return this.prismaService.faculty.update({
+        where: {
+          id: id,
+        },
+        data: payload
+      });
   }
 }
