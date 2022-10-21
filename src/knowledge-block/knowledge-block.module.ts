@@ -7,5 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [KnowledgeBlockController],
   providers: [KnowledgeBlockService],
+  exports: [KnowledgeBlockService]
 })
-export class KnowledgeBlockModule {}
+export class KnowledgeBlockModule { }

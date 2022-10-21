@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class createKnowledgeBlockDto {
@@ -6,4 +6,7 @@ export class createKnowledgeBlockDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+  @ApiProperty()
+  @IsNumber()
+  knowedgeBlockId: number;
 }
