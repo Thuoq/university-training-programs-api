@@ -4,7 +4,7 @@ import { CreateSectionDto } from './dtos/createSection.dto';
 
 @Injectable()
 export class SectionService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async createSection(payload: CreateSectionDto) {
     return this.prismaService.section.create({ data: payload });
@@ -38,6 +38,15 @@ export class SectionService {
       where: {
         id,
       },
+    });
+  }
+  async updateSection(id: number, payload: CreateSectionDto) {
+    await this.getSection(id);
+    return this.prismaService.section.update({
+      where: {
+        id: id,
+      },
+      data: payload
     });
   }
 }
