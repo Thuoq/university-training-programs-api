@@ -12,6 +12,9 @@ export class KnowledgeBlockService {
   }
   getListKnowledgeBlock() {
     return this.prismaService.knowledgeBlock.findMany({
+      where: {
+        knowledgeParentId: null,
+      },
       include: {
         knowledgeChildren: true,
       },

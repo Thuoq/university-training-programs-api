@@ -1,14 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createAcademicYearDto } from './dtos/createAcademicYear.dto';
+import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 
 @Injectable()
 export class AcademicYearService {
   constructor(private readonly prismaService: PrismaService) {}
-  createAcademicYear(payload: createAcademicYearDto) {
-    return this.prismaService.academicYear.create({
-      data: payload,
-    });
+  async createAcademicYear(payload: createAcademicYearDto) {
+    try {
+      const academic = await this.prismaService.academicYear.create({
+        data: payload,
+      });
+      return academic;
+    } catch (error) {
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          `Duplicate field ${error.meta.target[0]}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   getListAcademicYear() {
