@@ -17,9 +17,8 @@ export class CreateSubjectDto {
   @IsString()
   name: string;
   @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  numberOfCredits: number;
+  @IsOptional()
+  numberOfCredits?: number;
 
   @ApiProperty()
   @IsNumber()
@@ -30,11 +29,6 @@ export class CreateSubjectDto {
   @IsNumber()
   @IsNotEmpty()
   numberOfTeachingHours: number;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  numberOfCreditsRequirement: number;
 
   @ApiProperty()
   @IsNotEmpty()

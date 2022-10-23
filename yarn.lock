@@ -5139,10 +5139,10 @@ universalify@^2.0.0:
   resolved "https://registry.npmjs.org/universalify/-/universalify-2.0.0.tgz"
   integrity sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==
 
-university-management-db@^0.0.26:
-  version "0.0.26"
-  resolved "https://registry.yarnpkg.com/university-management-db/-/university-management-db-0.0.26.tgz#92a840abf647acbef257f50e82e7941a36e0ed60"
-  integrity sha512-gl70W5NtVRRp4cNw9kFUbwwBeLzDpqQ4jjdFsmpRbqR7yipOUKuS/7KbMMOCslGs4nG0fwzRxtH6445QJFbAXg==
+university-management-db@^0.0.27:
+  version "0.0.27"
+  resolved "https://registry.yarnpkg.com/university-management-db/-/university-management-db-0.0.27.tgz#4386e354083a4a5c027875c905930fe7eed67d5a"
+  integrity sha512-CKbxeRMeLtVjRAISK7jZFB0hf2oup0knfUrenNF5hxd4aR/nEm9e2H7V3/8hVgtCefJtQfBdxvD/YQM1aYqfcw==
   dependencies:
     "@nestjs/common" "^9.0.0"
     "@nestjs/core" "^9.0.0"

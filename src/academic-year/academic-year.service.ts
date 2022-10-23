@@ -7,7 +7,7 @@ export class AcademicYearService {
   constructor(private readonly prismaService: PrismaService) {}
   createAcademicYear(payload: createAcademicYearDto) {
     return this.prismaService.academicYear.create({
-      data: payload,    
+      data: payload,
     });
   }
 
@@ -35,8 +35,8 @@ export class AcademicYearService {
     });
   }
 
-  async updateAcademicYear(id: number, payload: createAcademicYearDto){
+  async updateAcademicYear(id: number, payload: createAcademicYearDto) {
     await this.getAcademicYear(id);
-    return this.prismaService.academicYear.updateMany({data:payload});
+    return this.prismaService.academicYear.updateMany({ data: payload });
   }
 }
