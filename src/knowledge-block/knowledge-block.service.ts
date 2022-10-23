@@ -4,19 +4,26 @@ import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 
 @Injectable()
 export class KnowledgeBlockService {
-  constructor(private readonly prismaService: PrismaService) { }
-  createKnowledgeBlock(payload: createKnowledgeBlockDto) {
-    return this.prismaService.knowedgeBlock.create({
+  constructor(private readonly prismaService: PrismaService) {}
+  async createKnowledgeBlock(payload: createKnowledgeBlockDto) {
+    return this.prismaService.knowledgeBlock.create({
       data: payload,
     });
   }
   getListKnowledgeBlock() {
-    return this.prismaService.knowedgeBlock.findMany();
+    return this.prismaService.knowledgeBlock.findMany({
+      include: {
+        knowledgeChildren: true,
+      },
+    });
   }
   async getKnowledgeBlock(id: number) {
-    const knowledgeBlock = await this.prismaService.knowedgeBlock.findUnique({
+    const knowledgeBlock = await this.prismaService.knowledgeBlock.findUnique({
       where: {
         id,
+      },
+      include: {
+        knowledgeChildren: true,
       },
     });
     if (!knowledgeBlock) {
@@ -26,7 +33,7 @@ export class KnowledgeBlockService {
   }
   async deleteKnowledgeBlock(id: number) {
     await this.getKnowledgeBlock(id);
-    return this.prismaService.knowedgeBlock.delete({
+    return this.prismaService.knowledgeBlock.delete({
       where: {
         id,
       },
@@ -34,11 +41,11 @@ export class KnowledgeBlockService {
   }
   async updateKnowledgeBlock(id: number, payload: createKnowledgeBlockDto) {
     await this.getKnowledgeBlock(id);
-    return this.prismaService.knowedgeBlock.update({
+    return this.prismaService.knowledgeBlock.update({
       where: {
         id: id,
       },
-      data: payload
+      data: payload,
     });
   }
 }
