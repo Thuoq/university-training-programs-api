@@ -17,14 +17,13 @@ export class CreateSubjectDto {
   @IsString()
   name: string;
   @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  numberOfCredits: number;
+  @IsOptional()
+  numberOfCredits?: number;
 
   @ApiProperty()
   @IsNumber()
-  @IsNotEmpty()
-  numberPrerequisiteCredits: number;
+  @IsOptional()
+  numberPrerequisiteCredits?: number;
 
   @ApiProperty()
   @IsNumber()
@@ -32,15 +31,14 @@ export class CreateSubjectDto {
   numberOfTeachingHours: number;
 
   @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  numberOfCreditsRequirement: number;
-
-  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   code: string;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  coefficient: number;
   @ApiProperty()
   @IsOptional()
   @IsArray()

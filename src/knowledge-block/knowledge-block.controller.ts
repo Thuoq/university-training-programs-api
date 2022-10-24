@@ -1,5 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
-import { KnowedgeBlock } from '@prisma/client';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { KnowledgeBlock } from '@prisma/client';
 import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 import { KnowledgeBlockService } from './knowledge-block.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -11,21 +20,30 @@ export class KnowledgeBlockController {
   @Post()
   async createKnowledgeBlock(
     @Body() body: createKnowledgeBlockDto,
-  ): Promise<KnowedgeBlock> {
+  ): Promise<KnowledgeBlock> {
     return await this.knowledgeBlockService.createKnowledgeBlock(body);
   }
   @Get()
-  async getListKnowledgeBlock(): Promise<KnowedgeBlock[]> {
+  async getListKnowledgeBlock(): Promise<KnowledgeBlock[]> {
     return await this.knowledgeBlockService.getListKnowledgeBlock();
   }
   @Get(':id')
-  async getKnowledgeBlock(@Param('id', ParseIntPipe) id: number): Promise<KnowedgeBlock> {
+  async getKnowledgeBlock(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<KnowledgeBlock> {
     return await this.knowledgeBlockService.getKnowledgeBlock(id);
   }
   @Delete(':id')
   async deleteKnowledgeBlock(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<KnowedgeBlock> {
+  ): Promise<KnowledgeBlock> {
     return await this.knowledgeBlockService.deleteKnowledgeBlock(id);
+  }
+  @Put(':id')
+  async updateKnowledgeBlock(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: createKnowledgeBlockDto,
+  ) {
+    return await this.knowledgeBlockService.updateKnowledgeBlock(id, body);
   }
 }

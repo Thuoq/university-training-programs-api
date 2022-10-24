@@ -4,7 +4,7 @@ import { createResourceDto } from './dtos/createResource.dto';
 
 @Injectable()
 export class ResourceService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async getResource(id: number) {
     const resource = await this.prismaService.resource.findUnique({
@@ -20,8 +20,8 @@ export class ResourceService {
   getListResource() {
     return this.prismaService.resource.findMany();
   }
-  createResource(payload: createResourceDto) {
-    const exist = this.prismaService.resource.findUnique({
+  async createResource(payload: createResourceDto) {
+    const exist = await this.prismaService.resource.findUnique({
       where: {
         code: payload.code,
       },
@@ -31,6 +31,23 @@ export class ResourceService {
     }
     return this.prismaService.resource.create({
       data: payload,
+    });
+  }
+  async updateResource(id: number, payload: createResourceDto) {
+    await this.getResource(id);
+    return this.prismaService.resource.update({
+      where: {
+        id: id,
+      },
+      data: payload
+    });
+  }
+  async deleteResource(id: number){
+    await this.getResource(id);
+    return this.prismaService.resource.delete({
+      where:{
+        id,
+      },
     });
   }
 }

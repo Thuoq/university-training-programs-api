@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEmployeeDto } from './dtos/createEmployee.dto';
 import { DepartmentService } from '../department/department.service';
 import { FacultyService } from '../faculty/faculty.service';
 import { PositionService } from '../position/position.service';
+import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -48,16 +49,32 @@ export class EmployeeService {
     return emp;
   }
   async createEmployee(payload: CreateEmployeeDto) {
-    const facultyPromise = this.facultyService.getFaculty(payload.facultyId);
-    const departmentPromise = this.departmentService.getDepartment(payload.departmentId);
-    const positionPromise = this.positionService.getPosition(payload.positionId);
-    await Promise.all([facultyPromise, departmentPromise, positionPromise]);
-    const { positionId, ...bodyCreateEmployee } = payload;
-    const employee = await this.prismaService.employee.create({
-      data: bodyCreateEmployee,
-    });
-    await this.createEmployeePosition(employee.id, positionId);
-    return employee;
+    try {
+      const facultyPromise = payload.facultyId
+        ? this.facultyService.getFaculty(payload.facultyId)
+        : [];
+      const departmentPromise = payload.departmentId
+        ? this.departmentService.getDepartment(payload.departmentId)
+        : [];
+      const positionPromise = payload.positionId
+        ? this.positionService.getPosition(payload.positionId)
+        : [];
+      await Promise.all([facultyPromise, departmentPromise, positionPromise]);
+      const { positionId, ...bodyCreateEmployee } = payload;
+      const employee = await this.prismaService.employee.create({
+        data: bodyCreateEmployee,
+      });
+      await this.createEmployeePosition(employee.id, positionId);
+      return employee;
+    } catch (error) {
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          `Duplicate field ${error.meta.target[0]}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   getListEmployee() {
     return this.prismaService.employee.findMany({
@@ -68,12 +85,9 @@ export class EmployeeService {
             position: true,
           },
         },
-        faculty: {
-          include: {
-            section: true,
-          },
-        },
+        faculty: true,
         department: true,
+        section: true,
       },
     });
   }

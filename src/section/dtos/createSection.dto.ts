@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class createKnowledgeBlockDto {
+export class CreateSectionDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -13,7 +13,7 @@ export class createKnowledgeBlockDto {
   code: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
-  @IsOptional()
-  knowledgeParentId?: number;
+  facultyId: number;
 }
