@@ -10,37 +10,46 @@ export class TrainingProgramService {
         private readonly prismaService: PrismaService,
         private readonly majorService: MajorService,
         private readonly academicYearService: AcademicYearService,
-    ) {}
+    ) { }
 
-    async createTrainingProgram(payload: CreateTrainingProgramDto){
+    async createTrainingProgram(payload: CreateTrainingProgramDto) {
         await this.majorService.getMajorUnique(payload.marjorId),
-        await this.academicYearService.getAcademicYear(payload.academicYearId)
-        return this.prismaService.trainingProgram.create({data: payload});
+            await this.academicYearService.getAcademicYear(payload.academicYearId)
+        return this.prismaService.trainingProgram.create({ data: payload });
     }
 
-    getListTrainingProgram(){
+    getListTrainingProgram() {
         return this.prismaService.trainingProgram.findMany();
     }
-    
-    async getTrainingProgramByUnique(id: number){
+
+    async getTrainingProgramByUnique(id: number) {
         const trainingProgram = await this.prismaService.trainingProgram.findFirst({
             where: {
                 id: id,
             },
         });
 
-        if(!trainingProgram){
+        if (!trainingProgram) {
             throw new NotFoundException('Không có chương trình đào tạo');
         }
         return trainingProgram;
     }
 
-   async deleteTrainingProgram(id: number){
+    async deleteTrainingProgram(id: number) {
         await this.getTrainingProgramByUnique(id);
         return this.prismaService.trainingProgram.delete({
             where: {
                 id,
             },
+        });
+    }
+    async updateTrainingProgram(id: number, payload: CreateTrainingProgramDto) {
+        await this.getTrainingProgramByUnique(id);
+        return this.prismaService.trainingProgram.update({
+            where: {
+                id: id,
+            },
+            data: payload,
         });
     }
 }
