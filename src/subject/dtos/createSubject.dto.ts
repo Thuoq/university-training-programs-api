@@ -22,8 +22,8 @@ export class CreateSubjectDto {
 
   @ApiProperty()
   @IsNumber()
-  @IsNotEmpty()
-  numberPrerequisiteCredits: number;
+  @IsOptional()
+  numberPrerequisiteCredits?: number;
 
   @ApiProperty()
   @IsNumber()

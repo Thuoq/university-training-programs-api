@@ -1,13 +1,25 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSectionDto } from './dtos/createSection.dto';
+import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 
 @Injectable()
 export class SectionService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createSection(payload: CreateSectionDto) {
-    return this.prismaService.section.create({ data: payload });
+    try {
+      const section = await this.prismaService.section.create({ data: payload });
+      return section;
+    } catch (error) {
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          `Duplicate field ${error.meta.target[0]}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   getListSection() {
@@ -46,7 +58,7 @@ export class SectionService {
       where: {
         id: id,
       },
-      data: payload
+      data: payload,
     });
   }
 }

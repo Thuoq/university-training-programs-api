@@ -1,15 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { createAcademicYearDto } from 'src/academic-year/dtos/createAcademicYear.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from './dtos/createPosition.dto';
+import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 
 @Injectable()
 export class PositionService {
-  constructor(private readonly prismaService: PrismaService) { }
-  createPosition(payload: CreatePositionDto) {
-    return this.prismaService.position.create({
-      data: payload,
-    });
+  constructor(private readonly prismaService: PrismaService) {}
+  async createPosition(payload: CreatePositionDto) {
+    try {
+      const pos = await this.prismaService.position.create({
+        data: payload,
+      });
+      return pos;
+    } catch (error) {
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          `Duplicate field ${error.meta.target[0]}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   getListPosition() {
     return this.prismaService.position.findMany();
@@ -40,7 +52,7 @@ export class PositionService {
       where: {
         id: id,
       },
-      data: payload
+      data: payload,
     });
   }
 }
