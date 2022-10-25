@@ -5,7 +5,7 @@ import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 
 @Injectable()
 export class AcademicYearService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
   async createAcademicYear(payload: createAcademicYearDto) {
     try {
       const academic = await this.prismaService.academicYear.create({
@@ -49,6 +49,11 @@ export class AcademicYearService {
 
   async updateAcademicYear(id: number, payload: createAcademicYearDto) {
     await this.getAcademicYear(id);
-    return this.prismaService.academicYear.updateMany({ data: payload });
+    return this.prismaService.academicYear.update({
+      where: {
+        id: id,
+      },
+      data: payload
+    });
   }
 }
