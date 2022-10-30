@@ -5,6 +5,7 @@ import { DepartmentService } from '../department/department.service';
 import { FacultyService } from '../faculty/faculty.service';
 import { PositionService } from '../position/position.service';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { async } from 'rxjs';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -12,7 +13,7 @@ export class EmployeeService {
     private readonly departmentService: DepartmentService,
     private readonly facultyService: FacultyService,
     private readonly positionService: PositionService,
-  ) {}
+  ) { }
   async getEmployeeByUnique(value: string | number) {
     const emp = await this.prismaService.employee.findFirst({
       where: {
@@ -109,5 +110,46 @@ export class EmployeeService {
         password: newPassword,
       },
     });
+  }
+
+  async getPositionEmployee(positionId: number, employeeId: number) {
+    const positionEmployee = await this.prismaService.positionEmployee.findFirst({
+      where: {
+        employeeId: employeeId,
+      },
+    });
+    if (!positionEmployee) {
+      throw new HttpException('Dữ liệu không hợp lệ', HttpStatus.BAD_REQUEST);
+    }
+    return positionEmployee;
+  }
+
+  async updatePositionEmployee(employeeId: number, positionId: number) {
+    await this.positionService.getPosition(positionId);
+    return this.prismaService.positionEmployee.update({
+      where: {
+        id: employeeId
+      },
+      data: {
+        positionId: positionId,
+      }
+    });
+  }
+  async updateEmployee(code: string, payload: CreateEmployeeDto) {
+    const employee = await this.getEmployeeByUnique(code);
+    const employeePosition = await this.getPositionEmployee(payload.positionId, employee.id);
+    const employeeUpdated = this.prismaService.$transaction(async (transaction) => {
+      if (payload.positionId) {
+        await this.updatePositionEmployee(employeePosition.id, payload.positionId);
+      }
+      const { positionId, ...payloadUpdateEmployee } = payload;
+      return this.prismaService.employee.update({
+        where: {
+          id: employee.id,
+        },
+        data: payloadUpdateEmployee,
+      });
+    });
+    return employeeUpdated;
   }
 }
