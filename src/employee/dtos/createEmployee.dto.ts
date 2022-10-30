@@ -38,7 +38,7 @@ export class CreateEmployeeDto {
   departmentId?: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   positionId?: number;
 
