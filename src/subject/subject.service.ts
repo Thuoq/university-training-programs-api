@@ -3,9 +3,10 @@ import { CreateSubjectDto } from './dtos/createSubject.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Subject } from '@prisma/client';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { async } from 'rxjs';
 @Injectable()
 export class SubjectService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
   async createSubjectService(payload: CreateSubjectDto): Promise<Subject> {
     try {
       const { prerequisiteSubjectsId, ...body } = payload;
@@ -60,5 +61,32 @@ export class SubjectService {
         id,
       },
     });
+  }
+
+  async updatePrerequisiteSubject(subjectId: number, payload: CreateSubjectDto) {
+    return this.prismaService.subject.update({
+      where: {
+        id: subjectId,
+      },
+      data: {
+        prerequisiteSubjects: { delete: payload.prerequisiteSubjectsId },
+      }
+    });
+  }
+  async updateSubject(id: number, payload: CreateSubjectDto) {
+    await this.getSubjectById(id);
+    const { prerequisiteSubjectsId, ...body } = payload;
+    const subjectUpdated = await this.prismaService.$transaction(async (transaction) => {
+      if (payload.prerequisiteSubjectsId) {
+        await this.updatePrerequisiteSubject(id, payload);
+      }
+      return this.prismaService.subject.update({
+        where: {
+          id: id,
+        },
+        data: body,
+      });
+    })
+    return subjectUpdated;
   }
 }

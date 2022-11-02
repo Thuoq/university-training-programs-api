@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { CreateSubjectDto } from './dtos/createSubject.dto';
 import { SubjectService } from './subject.service';
@@ -16,7 +17,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Subjects')
 @Controller('subjects')
 export class SubjectController {
-  constructor(private readonly subjectService: SubjectService) {}
+  constructor(private readonly subjectService: SubjectService) { }
 
   @Get()
   async getAllSubject() {
@@ -37,5 +38,9 @@ export class SubjectController {
   @Delete(':id')
   async deleteSubject(@Param('id', ParseIntPipe) id: number) {
     return await this.subjectService.deleteSubject(id);
+  }
+  @Put(':id')
+  async updateSubject(@Param('id', ParseIntPipe) id: number, @Body() body: CreateSubjectDto) {
+    return await this.subjectService.updateSubject(id, body);
   }
 }
