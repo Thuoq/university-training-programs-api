@@ -5,7 +5,6 @@ import { DepartmentService } from '../department/department.service';
 import { FacultyService } from '../faculty/faculty.service';
 import { PositionService } from '../position/position.service';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
-import { async } from 'rxjs';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -145,7 +144,7 @@ export class EmployeeService {
       if (payload.positionId) {
         await this.updatePositionEmployee(employeePosition.id, payload.positionId);
       }
-      const { positionId, ...payloadUpdateEmployee } = payload;
+      const { positionId, password, ...payloadUpdateEmployee } = payload;
       return this.prismaService.employee.update({
         where: {
           id: employee.id,

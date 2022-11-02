@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
+
   Get,
   Param,
-  ParseIntPipe,
+
   Post,
   Put,
 } from '@nestjs/common';
@@ -29,7 +29,7 @@ export class EmployeeController {
     return await this.employeeService.getEmployeeByUnique(id);
   }
   @Put(':id')
-  async updateEmployee(@Param('id') id: string, @Body() body: CreateEmployeeDto) {
-    return await this.employeeService.updateEmployee(id, body);
+  async updateEmployee(@Param('id') code: string, @Body() body: CreateEmployeeDto){
+    return await this.employeeService.updateEmployee(code, body);
   }
 }
