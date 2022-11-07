@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-
-  Get,
-  Param,
-
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { CreateEmployeeDto } from './dtos/createEmployee.dto';
 import { EmployeeService } from './employee.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -28,8 +19,8 @@ export class EmployeeController {
   async getEmployee(@Param('id') id: number | string) {
     return await this.employeeService.getEmployeeByUnique(id);
   }
-  @Put(':id')
-  async updateEmployee(@Param('id') code: string, @Body() body: CreateEmployeeDto){
+  @Put(':code')
+  async updateEmployee(@Param('code') code: string, @Body() body: CreateEmployeeDto) {
     return await this.employeeService.updateEmployee(code, body);
   }
 }

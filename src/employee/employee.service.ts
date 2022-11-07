@@ -67,6 +67,7 @@ export class EmployeeService {
       await this.createEmployeePosition(employee.id, positionId);
       return employee;
     } catch (error) {
+      console.log(error);
       if (error?.code === PostgresErrorCode.UniqueViolation) {
         throw new HttpException(
           `Duplicate field ${error.meta.target[0]}`,
