@@ -9,6 +9,6 @@ import { TrainingProgramService } from './training-program.service';
   imports: [PrismaModule, MajorModule, AcademicYearModule],
   controllers: [TrainingProgramController],
   providers: [TrainingProgramService],
-  exports: [TrainingProgramService]
+  exports: [TrainingProgramService],
 })
 export class TrainingProgramModule {}

@@ -11,7 +11,7 @@ export class TrainingProgramService {
     private readonly prismaService: PrismaService,
     private readonly majorService: MajorService,
     private readonly academicYearService: AcademicYearService,
-  ) { }
+  ) {}
 
   async createTrainingProgram(payload: CreateTrainingProgramDto) {
     try {
@@ -38,7 +38,7 @@ export class TrainingProgramService {
       include: {
         marjor: true,
         academicYear: true,
-      }
+      },
     });
   }
 
@@ -50,7 +50,7 @@ export class TrainingProgramService {
       include: {
         marjor: true,
         academicYear: true,
-      }
+      },
     });
 
     if (!trainingProgram) {
