@@ -1,0 +1,7 @@
+node_modules
+test
+.idea
+docker.template.env
+README.md
+.prettierrc
+eslintrc.js
