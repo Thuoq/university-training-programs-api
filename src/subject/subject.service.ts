@@ -69,7 +69,7 @@ export class SubjectService {
         id: subjectId,
       },
       data: {
-        prerequisiteSubjects: { delete: payload.prerequisiteSubjectsId },
+        prerequisiteSubjects: { connect: payload.prerequisiteSubjectsId },
       }
     });
   }
