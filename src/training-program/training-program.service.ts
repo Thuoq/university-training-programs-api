@@ -11,7 +11,7 @@ export class TrainingProgramService {
     private readonly prismaService: PrismaService,
     private readonly majorService: MajorService,
     private readonly academicYearService: AcademicYearService,
-  ) {}
+  ) { }
 
   async createTrainingProgram(payload: CreateTrainingProgramDto) {
     try {
@@ -34,7 +34,12 @@ export class TrainingProgramService {
   }
 
   getListTrainingProgram() {
-    return this.prismaService.trainingProgram.findMany();
+    return this.prismaService.trainingProgram.findMany({
+      include: {
+        marjor: true,
+        academicYear: true,
+      }
+    });
   }
 
   async getTrainingProgramByUnique(id: number) {
@@ -42,6 +47,10 @@ export class TrainingProgramService {
       where: {
         id: id,
       },
+      include: {
+        marjor: true,
+        academicYear: true,
+      }
     });
 
     if (!trainingProgram) {
