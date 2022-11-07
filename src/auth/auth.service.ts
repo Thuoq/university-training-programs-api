@@ -59,10 +59,10 @@ export class AuthService {
     });
   }
 
-  createDefaulPassword(){
-    let result = "";
-    for(let i = 0; i < 6; i++){
-      let temp = Math.floor(Math.random() * 101);
+  createDefaulPassword() {
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      const temp = Math.floor(Math.random() * 101);
       result += temp;
     }
     return result;
@@ -70,19 +70,15 @@ export class AuthService {
 
   async forgotPassword(email: string) {
     const employee = await this.employeeService.getEmployeeByUnique(email);
-    
+    const newPassword = this.createDefaulPassword();
     const content = `Training Program Management
-    \nYour new password: ${this.createDefaulPassword()}
+    \nYour new password: ${newPassword}
     \n Please return to the page to sign in`;
 
-    this.employeeService.updatePassword(employee.id, content);
-    this.emailConfirmService.sendMail(email, content, 'RESET PASSWORD');  
+    await this.employeeService.updatePassword(employee.id, newPassword);
+    await this.emailConfirmService.sendMail(email, content, 'RESET PASSWORD');
 
     return 'Nhà trường đã cấp lại mật khẩu cho bạn trong Email.Hãy kiểm tra Email và đăng nhập lại!';
-  }
-
-  getContentForgotPassword() {
-    return `Please click hear make reset your password`;
   }
 
   async confirmationToken(token: string) {
@@ -94,6 +90,6 @@ export class AuthService {
     const email = await this.emailConfirmService.decodeConfirmationToken(payload.token);
     const employee = await this.employeeService.getEmployeeByUnique(email);
     await this.verifyPassword(payload.oldPassword, employee.password);
-    return this.employeeService.updatePassword(employee.id, payload.newPassword); 
+    return this.employeeService.updatePassword(employee.id, payload.newPassword);
   }
 }
