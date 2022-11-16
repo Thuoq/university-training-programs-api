@@ -6,62 +6,71 @@ import { CreateTrainingProgramContentDto } from './dtos/createTrainingProgramCon
 
 @Injectable()
 export class TrainingProgramContentService {
-    constructor(
-        private readonly prismaService: PrismaService,
-        private readonly trainingProgramService: TrainingProgramService,
-        private readonly subjectService: SubjectService,
-    ) { }
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly trainingProgramService: TrainingProgramService,
+    private readonly subjectService: SubjectService,
+  ) {}
 
-    async createTrainingProgramContent(payload: CreateTrainingProgramContentDto) {
-        const trainingProgram = await this.prismaService.trainingProgramContent.findFirst({
-            where: {
-                trainingProgramId: payload.trainingProgramId,
-                subjectId: payload.subjectId,
-                subject: {
-                    id: payload.subjectId
-                },
-                trainingProgram: {
-                    id: payload.trainingProgramId
-                },
-            },
-        });
+  async createTrainingProgramContent(payload: CreateTrainingProgramContentDto) {
+    const trainingProgram = await this.prismaService.trainingProgramContent.findFirst({
+      where: {
+        trainingProgramId: payload.trainingProgramId,
+        subjectId: payload.subjectId,
+        subject: {
+          id: payload.subjectId,
+        },
+        trainingProgram: {
+          id: payload.trainingProgramId,
+        },
+      },
+    });
 
-        if (trainingProgram) {
-            throw new HttpException('Chương trình học đã có môn này', HttpStatus.BAD_REQUEST);
-        }
-
-        return this.prismaService.trainingProgramContent.create({ data: payload });
+    if (trainingProgram) {
+      throw new HttpException('Chương trình học đã có môn này', HttpStatus.BAD_REQUEST);
     }
 
-    getListTrainingProgramContent() {
-        return this.prismaService.trainingProgramContent.findMany();
-    }
+    return this.prismaService.trainingProgramContent.create({ data: payload });
+  }
 
-    async getTrainingProgramContent(id: number) {
-        const trainingProgramContent = this.prismaService.trainingProgramContent.findFirst({
-            where: {
-                id: id,
-            }
-        });
+  getListTrainingProgramContent() {
+    return this.prismaService.trainingProgramContent.findMany();
+  }
 
-        return trainingProgramContent
-    }
+  async getTrainingProgramContent(id: number) {
+    const trainingProgramContent = this.prismaService.trainingProgramContent.findFirst({
+      where: {
+        id: id,
+      },
+    });
 
-    async deleteTrainingProgramContent(id: number) {
-        await this.getTrainingProgramContent(id);
-        return this.prismaService.trainingProgramContent.delete({
-            where: {
-                id,
-            }
-        });
-    }
-    async updateTrainingProgramContent(id: number, payload: CreateTrainingProgramContentDto) {
-        await this.getTrainingProgramContent(id);
-        return this.prismaService.trainingProgramContent.update({
-            where: {
-                id: id,
-            },
-            data: payload,
-        })
-    }
+    return trainingProgramContent;
+  }
+
+  async deleteTrainingProgramContent(id: number) {
+    await this.getTrainingProgramContent(id);
+    return this.prismaService.trainingProgramContent.delete({
+      where: {
+        id,
+      },
+    });
+  }
+  async updateTrainingProgramContent(
+    id: number,
+    payload: CreateTrainingProgramContentDto,
+  ) {
+    await this.getTrainingProgramContent(id);
+    return this.prismaService.trainingProgramContent.update({
+      where: {
+        id: id,
+      },
+      data: payload,
+    });
+  }
+
+  createManyTrainingProgramContent(data: CreateTrainingProgramContentDto[]) {
+    return this.prismaService.trainingProgramContent.createMany({
+      data,
+    });
+  }
 }
