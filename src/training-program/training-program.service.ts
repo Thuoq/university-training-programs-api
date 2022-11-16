@@ -38,6 +38,11 @@ export class TrainingProgramService {
       include: {
         marjor: true,
         academicYear: true,
+        trainingProgramContents: {
+          include: {
+            subject: true,
+          },
+        },
       },
     });
   }
@@ -50,6 +55,11 @@ export class TrainingProgramService {
       include: {
         marjor: true,
         academicYear: true,
+        trainingProgramContents: {
+          include: {
+            subject: true,
+          },
+        },
       },
     });
 
