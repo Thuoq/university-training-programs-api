@@ -27,33 +27,18 @@ export class TrainingProgramContentController {
       payload,
     );
   }
-  @Post()
-  async createTrainingProgramContent(@Body() payload: CreateTrainingProgramContentDto) {
-    return await this.trainingProgramContentService.createTrainingProgramContent(payload);
-  }
-
   @Get()
   async getListTrainingProgramContent() {
     return await this.trainingProgramContentService.getListTrainingProgramContent();
   }
 
-  @Get(':id')
-  async getTrainingProgramContent(@Param('id', ParseIntPipe) id: number) {
-    return await this.trainingProgramContentService.getTrainingProgramContent(id);
+  @Get(':trainingProgram')
+  async getTrainingProgramContent(@Param('trainingProgram', ParseIntPipe) trainingProgramId: number) {
+    return await this.trainingProgramContentService.getTrainingProgramContent(trainingProgramId);
   }
 
-  @Delete(':id')
-  async deleteTrainingProgramContent(@Param('id', ParseIntPipe) id: number) {
-    return await this.trainingProgramContentService.deleteTrainingProgramContent(id);
-  }
-  @Put(':id')
-  async updateTrainingProgramContent(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: CreateTrainingProgramContentDto,
-  ) {
-    return await this.trainingProgramContentService.updateTrainingProgramContent(
-      id,
-      body,
-    );
+  @Delete(':trainingProgramId')
+  async deleteTrainingProgramContent(@Param('trainingProgramId', ParseIntPipe) trainingProgramId: number) {
+    return await this.trainingProgramContentService.deleteManyTrainingProgramContent(trainingProgramId);
   }
 }
