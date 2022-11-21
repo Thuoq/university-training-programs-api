@@ -98,7 +98,7 @@ export class SubjectService {
         await this.disConnectPrerequisiteSubject(
           transaction,
           id,
-          currentSubject.prerequisiteSubjects,
+          currentSubject.prerequisiteSubjects.map((el) => ({ id: el.id })),
         );
         await this.updatePrerequisiteSubject(transaction, id, payload);
       }
