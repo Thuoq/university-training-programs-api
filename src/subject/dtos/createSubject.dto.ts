@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-class PrerequisiteSubjectsId {
+export class PrerequisiteSubjectsId {
   id: number;
 }
 export class CreateSubjectDto {
