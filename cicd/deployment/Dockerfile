@@ -10,6 +10,8 @@ COPY ./yarn.lock .
 RUN yarn install
 # Copy the rest of the files
 COPY . .
+RUN apk add openssl1.1-compat && rm -rf /var/cache/apk/*
+
 RUN yarn prisma:generate
 RUN yarn build
 CMD ["yarn", "start:prod"]
