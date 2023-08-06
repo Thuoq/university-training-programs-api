@@ -10,6 +10,6 @@ COPY ./yarn.lock .
 RUN yarn install
 # Copy the rest of the files
 COPY . .
-RUN yarn build
 RUN yarn prisma:generate
+RUN yarn build
 CMD ["yarn", "start:prod"]
