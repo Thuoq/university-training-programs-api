@@ -8,3 +8,4 @@ export const ACTION_CRUD = {
   CREATE: 'create',
   GET: 'get',
 };
+export const IS_ACTIVE = true;
