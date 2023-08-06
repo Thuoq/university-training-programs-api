@@ -1,11 +1,12 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { ACTION_CRUD, MODEL } from '../constant/models';
+import { ACTION_CRUD, IS_ACTIVE, MODEL } from '../constant/models';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.$connect();
+    this.$use(this.softDelete4Finding);
     this.$use(async (params: Prisma.MiddlewareParams, next) => {
       const { model, action, args } = params;
       if (
@@ -26,5 +27,30 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleDestroy() {
     await this.$disconnect();
+  }
+
+  softDelete4Finding<T extends Prisma.BatchPayload = Prisma.BatchPayload>(
+    params: Prisma.MiddlewareParams,
+    next: (params: Prisma.MiddlewareParams) => Promise<T>,
+  ) {
+    if (params.action === 'findUnique' || params.action === 'findFirst') {
+      params.action = 'findFirst';
+      if (params.args?.where?.status == undefined) {
+        params.args.where['isActive'] = IS_ACTIVE;
+      }
+    }
+    if (params.action === 'findMany') {
+      if (params.args?.where) {
+        if (params.args?.where?.isActive == undefined) {
+          params.args.where['isActive'] = IS_ACTIVE;
+        }
+      } else {
+        params.args.where = {
+          isActive: IS_ACTIVE,
+        };
+      }
+    }
+
+    return next(params);
   }
 }
