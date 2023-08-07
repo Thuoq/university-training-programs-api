@@ -45,12 +45,13 @@ export class FacultyService {
   }
   async deleteFaculty(id: number) {
     const facility = await this.getFaculty(id);
+    const today = new Date();
     return this.prismaService.faculty.update({
       where: {
         id,
       },
       data: {
-        code: `${facility.id}-${facility.code}`,
+        code: `${facility.id}-${facility.code}-${today.getTime()}`,
         isActive: false,
       },
     });

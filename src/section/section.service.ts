@@ -27,6 +27,9 @@ export class SectionService {
       include: {
         faculty: true,
       },
+      orderBy: {
+        id: 'desc',
+      },
     });
   }
 
@@ -45,10 +48,15 @@ export class SectionService {
   }
 
   async deleteSection(id: number) {
-    await this.getSection(id);
-    return this.prismaService.section.delete({
+    const section = await this.getSection(id);
+    const today = new Date();
+    return this.prismaService.section.update({
       where: {
         id,
+      },
+      data: {
+        code: `${section.id}-${section.code}-${today.getTime()}`,
+        isActive: false,
       },
     });
   }
