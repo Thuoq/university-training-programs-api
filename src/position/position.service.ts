@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { createAcademicYearDto } from 'src/academic-year/dtos/createAcademicYear.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from './dtos/createPosition.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
@@ -38,10 +37,15 @@ export class PositionService {
     return position;
   }
   async deletePosition(id: number) {
-    await this.getPosition(id);
-    return this.prismaService.position.delete({
+    const pos = await this.getPosition(id);
+    const today = new Date();
+    return this.prismaService.position.update({
       where: {
         id,
+      },
+      data: {
+        code: `${pos.id}-${pos.code}-${today.getTime()}`,
+        isActive: false,
       },
     });
   }

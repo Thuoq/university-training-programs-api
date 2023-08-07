@@ -43,10 +43,15 @@ export class AcademicYearService {
     return academicYear;
   }
   async deleteAcademicYear(id: number) {
-    await this.getAcademicYear(id);
-    return this.prismaService.academicYear.delete({
+    const accademy = await this.getAcademicYear(id);
+    const today = new Date();
+    return this.prismaService.academicYear.update({
       where: {
         id,
+      },
+      data: {
+        code: `${accademy.id}-${accademy.code}-${today.getTime()}`,
+        isActive: false,
       },
     });
   }
