@@ -12,6 +12,9 @@ export class MajorService {
         faculty: true,
         section: true,
       },
+      orderBy: {
+        id: 'desc',
+      },
     });
   }
   async getMajorUnique(value: number) {
@@ -39,10 +42,16 @@ export class MajorService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  deleteMajor(id: number) {
-    return this.prisma.major.delete({
+  async deleteMajor(id: number) {
+    const today = new Date();
+    const major = await this.getMajorUnique(id);
+    return this.prisma.major.update({
       where: {
         id,
+      },
+      data: {
+        code: `${major.id}-${major.code}-${today.getTime()}`,
+        isActive: false,
       },
     });
   }

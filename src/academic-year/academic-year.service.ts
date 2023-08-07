@@ -5,7 +5,7 @@ import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 
 @Injectable()
 export class AcademicYearService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
   async createAcademicYear(payload: createAcademicYearDto) {
     try {
       const academic = await this.prismaService.academicYear.create({
@@ -24,7 +24,11 @@ export class AcademicYearService {
   }
 
   getListAcademicYear() {
-    return this.prismaService.academicYear.findMany();
+    return this.prismaService.academicYear.findMany({
+      orderBy: {
+        id: 'desc',
+      },
+    });
   }
 
   async getAcademicYear(id: number) {
@@ -53,7 +57,7 @@ export class AcademicYearService {
       where: {
         id: id,
       },
-      data: payload
+      data: payload,
     });
   }
 }

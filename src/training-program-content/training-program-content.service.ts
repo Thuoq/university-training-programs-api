@@ -4,12 +4,10 @@ import { CreateTrainingProgramContentDto } from './dtos/createTrainingProgramCon
 
 @Injectable()
 export class TrainingProgramContentService {
-  constructor(
-    private readonly prismaService: PrismaService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   getListTrainingProgramContent() {
-    return this.prismaService.trainingProgramContent.findMany();
+    return this.prismaService.trainingProgramContent;
   }
 
   async getTrainingProgramContent(trainingProgramId: number) {
@@ -17,9 +15,9 @@ export class TrainingProgramContentService {
       where: {
         trainingProgramId: trainingProgramId,
       },
-      include:{
+      include: {
         trainingProgram: true,
-      }
+      },
     });
 
     return trainingProgramContent;

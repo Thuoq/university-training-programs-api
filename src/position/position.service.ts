@@ -24,7 +24,7 @@ export class PositionService {
     }
   }
   getListPosition() {
-    return this.prismaService.position.findMany();
+    return this.prismaService.position.findMany({});
   }
   async getPosition(id: number) {
     const position = await this.prismaService.position.findUnique({

@@ -23,7 +23,7 @@ export class StudentService {
     return this.prisma.student.create({ data: payload });
   }
   getListStudent() {
-    return this.prisma.student.findMany();
+    return this.prisma.student.findMany({});
   }
   async getStudentByUnique(value: string | number) {
     const student = await this.prisma.student.findFirst({

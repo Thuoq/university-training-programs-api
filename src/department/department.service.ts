@@ -11,7 +11,7 @@ export class DepartmentService {
     });
   }
   getListDepartment() {
-    return this.prismaService.department.findMany();
+    return this.prismaService.department.findMany({});
   }
   async getDepartment(id: number) {
     const department = await this.prismaService.department.findUnique({
