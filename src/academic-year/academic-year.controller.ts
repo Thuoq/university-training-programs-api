@@ -7,11 +7,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { AcademicYear } from '@prisma/client';
 import { createAcademicYearDto } from './dtos/createAcademicYear.dto';
 import { AcademicYearService } from './academic-year.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchAcademicYearQueryDto } from './dtos/search-academic-year.query.dto';
 
 @ApiTags('Academic Year')
 @Controller('academic-year')
@@ -22,8 +24,10 @@ export class AcademicYearController {
     return await this.academicYearService.createAcademicYear(body);
   }
   @Get()
-  async getListAcademicYear(): Promise<AcademicYear[]> {
-    return await this.academicYearService.getListAcademicYear();
+  async getListAcademicYear(
+    @Query() query: SearchAcademicYearQueryDto,
+  ): Promise<AcademicYear[]> {
+    return await this.academicYearService.getListAcademicYear(query);
   }
   @Get(':id')
   async getAcademicYear(@Param('id', ParseIntPipe) id: number): Promise<AcademicYear> {
