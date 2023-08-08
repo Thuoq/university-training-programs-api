@@ -51,13 +51,21 @@ export class SubjectService {
       include: {
         prerequisiteSubjects: true,
       },
+      orderBy: {
+        id: 'desc',
+      },
     });
   }
   async deleteSubject(id: number): Promise<Subject> {
-    await this.getSubjectById(id);
-    return this.prismaService.subject.delete({
+    const subject = await this.getSubjectById(id);
+    const today = new Date();
+    return this.prismaService.subject.update({
       where: {
         id,
+      },
+      data: {
+        code: `${subject.id}-${subject.code}-${today.getTime()}`,
+        isActive: false,
       },
     });
   }

@@ -7,39 +7,35 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 export class PrerequisiteSubjectsId {
   id: number;
 }
 export class CreateSubjectDto {
-  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   name: string;
-  @ApiProperty()
   @IsOptional()
+  @Type(() => Number)
   numberOfCredits?: number;
 
-  @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   numberPrerequisiteCredits?: number;
 
-  @ApiProperty()
+  @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
   numberOfTeachingHours: number;
 
-  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   code: string;
 
-  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
+  @Type(() => Number)
   coefficient: number;
-  @ApiProperty()
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

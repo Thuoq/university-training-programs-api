@@ -14,7 +14,11 @@ async function bootstrap() {
     methods: 'GET, PUT, POST, DELETE, PATCH',
   });
   const configService = app.get(ConfigService);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
   const config = new DocumentBuilder()
     .setTitle('University Training Programs Api')
     .setDescription('The University Training Programs API description')

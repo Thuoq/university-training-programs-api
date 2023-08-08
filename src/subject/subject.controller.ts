@@ -17,7 +17,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Subjects')
 @Controller('subjects')
 export class SubjectController {
-  constructor(private readonly subjectService: SubjectService) { }
+  constructor(private readonly subjectService: SubjectService) {}
 
   @Get()
   async getAllSubject() {
@@ -40,7 +40,10 @@ export class SubjectController {
     return await this.subjectService.deleteSubject(id);
   }
   @Put(':id')
-  async updateSubject(@Param('id', ParseIntPipe) id: number, @Body() body: CreateSubjectDto) {
+  async updateSubject(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateSubjectDto,
+  ) {
     return await this.subjectService.updateSubject(id, body);
   }
 }
