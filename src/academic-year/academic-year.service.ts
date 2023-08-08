@@ -59,6 +59,7 @@ export class AcademicYearService {
     }
     return academicYear;
   }
+
   async deleteAcademicYear(id: number) {
     const accademy = await this.getAcademicYear(id);
     const today = new Date();
@@ -81,5 +82,19 @@ export class AcademicYearService {
       },
       data: payload,
     });
+  }
+
+  async searchAcademicYear(textSearch: string) {
+    const academicYear = await this.prismaService.academicYear.findMany({
+      where: {
+        OR: [
+          {
+            name: { contains: textSearch },
+          },
+          { code: { contains: textSearch } },
+        ],
+      },
+    });
+    return academicYear;
   }
 }

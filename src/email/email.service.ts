@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as Mail from 'nodemailer/lib/mailer';
 import { ConfigService } from '@nestjs/config';
 import { createTransport } from 'nodemailer';
-import { JwtService } from '@nestjs/jwt';
+// import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class EmailService {
