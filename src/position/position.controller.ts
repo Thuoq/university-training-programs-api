@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreatePositionDto } from './dtos/createPosition.dto';
 import { PositionService } from './position.service';
 import { Position } from '@prisma/client';
@@ -7,7 +16,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Positions')
 @Controller('positions')
 export class PositionController {
-  constructor(private readonly positionService: PositionService) { }
+  constructor(private readonly positionService: PositionService) {}
   @Post()
   async createPosition(@Body() body: CreatePositionDto): Promise<Position> {
     return await this.positionService.createPosition(body);
@@ -26,7 +35,10 @@ export class PositionController {
   }
 
   @Put(':id')
-  async updatePosition(@Param('id', ParseIntPipe) id: number, @Body() body: CreatePositionDto) {
+  async updatePosition(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreatePositionDto,
+  ) {
     return await this.positionService.updatePosition(id, body);
   }
 }

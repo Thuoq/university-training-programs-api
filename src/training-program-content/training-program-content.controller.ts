@@ -33,12 +33,20 @@ export class TrainingProgramContentController {
   }
 
   @Get(':trainingProgram')
-  async getTrainingProgramContent(@Param('trainingProgram', ParseIntPipe) trainingProgramId: number) {
-    return await this.trainingProgramContentService.getTrainingProgramContent(trainingProgramId);
+  async getTrainingProgramContent(
+    @Param('trainingProgram', ParseIntPipe) trainingProgramId: number,
+  ) {
+    return await this.trainingProgramContentService.getTrainingProgramContent(
+      trainingProgramId,
+    );
   }
 
   @Delete(':trainingProgramId')
-  async deleteTrainingProgramContent(@Param('trainingProgramId', ParseIntPipe) trainingProgramId: number) {
-    return await this.trainingProgramContentService.deleteManyTrainingProgramContent(trainingProgramId);
+  async deleteTrainingProgramContent(
+    @Param('trainingProgramId', ParseIntPipe) trainingProgramId: number,
+  ) {
+    return await this.trainingProgramContentService.deleteManyTrainingProgramContent(
+      trainingProgramId,
+    );
   }
 }
