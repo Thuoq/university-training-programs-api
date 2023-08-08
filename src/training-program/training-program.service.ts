@@ -35,6 +35,9 @@ export class TrainingProgramService {
 
   getListTrainingProgram() {
     return this.prismaService.trainingProgram.findMany({
+      orderBy: {
+        id: 'desc',
+      },
       include: {
         marjor: true,
         academicYear: true,
@@ -70,10 +73,15 @@ export class TrainingProgramService {
   }
 
   async deleteTrainingProgram(id: number) {
-    await this.getTrainingProgramByUnique(id);
-    return this.prismaService.trainingProgram.delete({
+    const trainingProgram = await this.getTrainingProgramByUnique(id);
+    const today = new Date();
+    return this.prismaService.trainingProgram.update({
       where: {
         id,
+      },
+      data: {
+        code: `${trainingProgram.id}-${trainingProgram.code}-${today.getTime()}`,
+        isActive: false,
       },
     });
   }
