@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { PrismaService } from '../prisma/prisma.service';
 import { createAcademicYearDto } from './dtos/createAcademicYear.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchAcademicYearQueryDto } from './dtos/search-academic-year.query.dto';
 
 @Injectable()
 export class AcademicYearService {
@@ -23,8 +24,24 @@ export class AcademicYearService {
     }
   }
 
-  getListAcademicYear() {
+  getListAcademicYear(query: SearchAcademicYearQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+          ],
+        }
+      : {};
+
     return this.prismaService.academicYear.findMany({
+      where: searchCriteria,
       orderBy: {
         id: 'desc',
       },
