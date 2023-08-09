@@ -7,10 +7,12 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateSectionDto } from './dtos/createSection.dto';
 import { SectionService } from './section.service';
+import { SearchSectionQueryDto } from './dtos/search-section.query.dto';
 
 @ApiTags('Sections')
 @Controller('sections')
@@ -23,8 +25,8 @@ export class SectionController {
   }
 
   @Get()
-  async getListSection() {
-    return await this.sectionService.getListSection();
+  async getListSection(@Query() query: SearchSectionQueryDto) {
+    return await this.sectionService.getListSection(query);
   }
 
   @Get(':id')

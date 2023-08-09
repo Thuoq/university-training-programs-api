@@ -7,11 +7,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FacultyService } from './faculty.service';
 import { Faculty } from '@prisma/client';
 import { createFacultyDto } from './dtos/createFaculty.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchFacultyQueryDto } from './dtos/search-faculty.query.dto';
 
 @ApiTags('Faculties')
 @Controller('faculties')
@@ -22,8 +24,8 @@ export class FacultyController {
     return await this.facultyService.createFaculty(body);
   }
   @Get()
-  async getListFaculty(): Promise<Faculty[]> {
-    return await this.facultyService.getListFaculty();
+  async getListFaculty(@Query() query: SearchFacultyQueryDto): Promise<Faculty[]> {
+    return await this.facultyService.getListFaculty(query);
   }
   @Get(':id')
   async getFaculty(@Param('id', ParseIntPipe) id: number): Promise<Faculty> {

@@ -3,6 +3,8 @@ import { CreateSubjectDto, PrerequisiteSubjectsId } from './dtos/createSubject.d
 import { PrismaService } from '../prisma/prisma.service';
 import { Subject } from '@prisma/client';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchSubjectQueryDto } from './dtos/searchSubject.query.dto';
+
 @Injectable()
 export class SubjectService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -46,8 +48,51 @@ export class SubjectService {
     }
     return subject;
   }
-  getAllSubject(): Promise<Subject[]> {
+  getAllSubject(query: SearchSubjectQueryDto): Promise<Subject[]> {
+    const { textSearch } = query;
+    const numericSearch = parseInt(textSearch);
+    const numericSearchFloat = parseFloat(textSearch);
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+            {
+              numberOfCredits: isNaN(numericSearch)
+                ? undefined
+                : { equals: numericSearch },
+            },
+            {
+              numberPrerequisiteCredits: isNaN(numericSearch)
+                ? undefined
+                : { equals: numericSearch },
+            },
+            {
+              numberOfTeachingHours: isNaN(numericSearch)
+                ? undefined
+                : { equals: numericSearch },
+            },
+            {
+              coefficient: isNaN(numericSearch) ? undefined : numericSearchFloat,
+            },
+            {
+              prerequisiteSubjects: {
+                some: {
+                  code: { contains: textSearch },
+                },
+              },
+            },
+          ],
+        }
+      : {};
+
     return this.prismaService.subject.findMany({
+      where: searchCriteria,
       include: {
         prerequisiteSubjects: true,
       },

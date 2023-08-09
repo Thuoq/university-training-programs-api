@@ -33,17 +33,10 @@ export class AcademicYearController {
   async getAcademicYear(@Param('id', ParseIntPipe) id: number): Promise<AcademicYear> {
     return await this.academicYearService.getAcademicYear(id);
   }
-  @Get(':textSearch')
-  async searchAcademicYear(
-    @Param('textSearch') textSearch: string,
-  ): Promise<AcademicYear[]> {
-    return await this.academicYearService.searchAcademicYear(textSearch);
-  }
   @Delete(':id')
   async deleteAcademicYear(@Param('id', ParseIntPipe) id: number): Promise<AcademicYear> {
     return await this.academicYearService.deleteAcademicYear(id);
   }
-
   @Put(':id')
   async updateAcademicYear(
     @Param('id', ParseIntPipe) id: number,

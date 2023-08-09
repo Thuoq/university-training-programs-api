@@ -7,11 +7,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CreatePositionDto } from './dtos/createPosition.dto';
 import { PositionService } from './position.service';
 import { Position } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchPositionQueryDto } from './dtos/searchPosition.dto';
 
 @ApiTags('Positions')
 @Controller('positions')
@@ -22,8 +24,8 @@ export class PositionController {
     return await this.positionService.createPosition(body);
   }
   @Get()
-  async getListPosition(): Promise<Position[]> {
-    return await this.positionService.getListPosition();
+  async getListPosition(@Query() query: SearchPositionQueryDto): Promise<Position[]> {
+    return await this.positionService.getListPosition(query);
   }
   @Get(':id')
   async getPosition(@Param('id', ParseIntPipe) id: number): Promise<Position> {

@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { createFacultyDto } from './dtos/createFaculty.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchFacultyQueryDto } from './dtos/search-faculty.query.dto';
 
 @Injectable()
 export class FacultyService {
@@ -25,8 +26,30 @@ export class FacultyService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListFaculty() {
+  getListFaculty(query: SearchFacultyQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+          ],
+          AND: [
+            {
+              isActive: true,
+            },
+          ],
+        }
+      : {
+          isActive: true,
+        };
     return this.prismaService.faculty.findMany({
+      where: searchCriteria,
       orderBy: {
         id: 'desc',
       },
@@ -44,17 +67,31 @@ export class FacultyService {
     return faculty;
   }
   async deleteFaculty(id: number) {
-    const facility = await this.getFaculty(id);
-    const today = new Date();
-    return this.prismaService.faculty.update({
+    const faculty = await this.getFaculty(id);
+    const sectionsWithFaculty = await this.prismaService.section.findMany({
       where: {
-        id,
-      },
-      data: {
-        code: `${facility.id}-${facility.code}-${today.getTime()}`,
-        isActive: false,
+        faculty: {
+          id: faculty.id,
+        },
       },
     });
+    if (sectionsWithFaculty.length > 0) {
+      throw new HttpException(
+        'Cannot delete this faculty becuase it still ref to section',
+        HttpStatus.FORBIDDEN,
+      );
+    } else {
+      const today = new Date();
+      return this.prismaService.faculty.update({
+        where: {
+          id,
+        },
+        data: {
+          code: `${faculty.id}-${faculty.code}-${today.getTime()}`,
+          isActive: false,
+        },
+      });
+    }
   }
   async updateFaculty(id: number, payload: createFacultyDto) {
     await this.getFaculty(id);

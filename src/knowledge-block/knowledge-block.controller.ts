@@ -7,11 +7,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { KnowledgeBlock } from '@prisma/client';
 import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 import { KnowledgeBlockService } from './knowledge-block.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchKnowledgeBlockQueryDto } from './dtos/searchKnowledgeBlock.dto';
 
 @ApiTags('Knowledge block')
 @Controller('knowledge-block')
@@ -24,8 +26,10 @@ export class KnowledgeBlockController {
     return await this.knowledgeBlockService.createKnowledgeBlock(body);
   }
   @Get()
-  async getListKnowledgeBlock(): Promise<KnowledgeBlock[]> {
-    return await this.knowledgeBlockService.getListKnowledgeBlock();
+  async getListKnowledgeBlock(
+    @Query() query: SearchKnowledgeBlockQueryDto,
+  ): Promise<KnowledgeBlock[]> {
+    return await this.knowledgeBlockService.getListKnowledgeBlock(query);
   }
   @Get(':id')
   async getKnowledgeBlock(

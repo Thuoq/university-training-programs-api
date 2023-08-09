@@ -5,6 +5,7 @@ import { DepartmentService } from '../department/department.service';
 import { FacultyService } from '../faculty/faculty.service';
 import { PositionService } from '../position/position.service';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchEmployeeQueryDto } from './dtos/searchEmployee.dto';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -77,8 +78,47 @@ export class EmployeeService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListEmployee() {
+  getListEmployee(query: SearchEmployeeQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              email: { contains: textSearch },
+            },
+            {
+              employeeCode: { contains: textSearch },
+            },
+            {
+              faculty: {
+                name: { contains: textSearch },
+              },
+            },
+            {
+              department: {
+                name: { contains: textSearch },
+              },
+            },
+            {
+              section: {
+                name: { contains: textSearch },
+              },
+            },
+            {
+              role: {
+                name: { contains: textSearch },
+              },
+            },
+          ],
+        }
+      : {};
+
     return this.prismaService.employee.findMany({
+      where: searchCriteria,
       include: {
         role: true,
         positionEmployees: {

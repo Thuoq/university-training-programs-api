@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSectionDto } from './dtos/createSection.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchSectionQueryDto } from './dtos/search-section.query.dto';
 
 @Injectable()
 export class SectionService {
@@ -22,8 +23,29 @@ export class SectionService {
     }
   }
 
-  getListSection() {
+  getListSection(query: SearchSectionQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+            {
+              faculty: {
+                name: { contains: textSearch },
+              },
+            },
+          ],
+        }
+      : {};
+
     return this.prismaService.section.findMany({
+      where: searchCriteria,
       include: {
         faculty: true,
       },

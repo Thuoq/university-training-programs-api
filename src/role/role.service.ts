@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRoleDto } from './dtos/createRole.dto';
 import { ResourceService } from '../resource/resource.service';
 import { Role } from '@prisma/client';
+import { SearchRoleQueryDto } from './dtos/searchRole.dto';
+import { contains } from 'class-validator';
 @Injectable()
 export class RoleService {
   constructor(
@@ -31,8 +33,26 @@ export class RoleService {
       return role;
     });
   }
-  getListRole() {
+  getListRole(query: SearchRoleQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+            {
+              description: { contains: textSearch },
+            },
+          ],
+        }
+      : {};
     return this.prismaService.role.findMany({
+      where: searchCriteria,
       include: {
         resouceRoles: true,
       },
