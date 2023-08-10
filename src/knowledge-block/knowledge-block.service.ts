@@ -1,9 +1,16 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchKnowledgeBlockQueryDto } from './dtos/searchKnowledgeBlock.dto';
-
+import { KnowledgeBlock, TrainingProgramContent } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
 @Injectable()
 export class KnowledgeBlockService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -23,7 +30,7 @@ export class KnowledgeBlockService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListKnowledgeBlock(query: SearchKnowledgeBlockQueryDto) {
+  async getListKnowledgeBlock(query: SearchKnowledgeBlockQueryDto) {
     const { textSearch } = query;
 
     const searchCriteria = textSearch
@@ -41,20 +48,64 @@ export class KnowledgeBlockService {
         }
       : { knowledgeParentId: null };
 
-    return this.prismaService.knowledgeBlock.findMany({
+    const knowledgeBlocks = await this.prismaService.knowledgeBlock.findMany({
       where: searchCriteria,
       include: {
-        knowledgeChildren: true,
+        knowledgeChildren: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+          include: {
+            trainingProgramContents: {
+              where: {
+                isActive: IS_ACTIVE,
+              },
+            },
+          },
+        },
+        trainingProgramContents: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
     });
+    return knowledgeBlocks.map((know) => ({
+      ...know,
+      canDelete:
+        know.knowledgeChildren.length === 0 && this.canDeleteKnowledgeChildren(know),
+      knowledgeChildren: know.knowledgeChildren.map((know) => ({
+        ...know,
+        canDelete: this.canDeleteKnowledgeChildren(know),
+      })),
+    }));
   }
+
+  canDeleteKnowledgeChildren(
+    know: KnowledgeBlock & { trainingProgramContents: TrainingProgramContent[] },
+  ) {
+    const trainingActive = know.trainingProgramContents.filter(
+      (train) => train.isActive === IS_ACTIVE,
+    );
+    return trainingActive.length === 0;
+  }
+
   async getKnowledgeBlock(id: number) {
     const knowledgeBlock = await this.prismaService.knowledgeBlock.findUnique({
       where: {
         id,
       },
       include: {
-        knowledgeChildren: true,
+        knowledgeChildren: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
+        trainingProgramContents: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
     });
     if (!knowledgeBlock) {
@@ -63,10 +114,22 @@ export class KnowledgeBlockService {
     return knowledgeBlock;
   }
   async deleteKnowledgeBlock(id: number) {
-    await this.getKnowledgeBlock(id);
-    return this.prismaService.knowledgeBlock.delete({
+    const know = await this.getKnowledgeBlock(id);
+    const isParent = know.knowledgeParentId === null;
+    if (isParent && know.knowledgeChildren.length !== 0) {
+      throw new BadRequestException();
+    }
+    const canDelete = this.canDeleteKnowledgeChildren(know);
+    if (!canDelete) throw new BadRequestException();
+    const today = new Date();
+
+    return this.prismaService.knowledgeBlock.update({
       where: {
         id,
+      },
+      data: {
+        isActive: false,
+        code: `${know.id}-${know.code}-${today.getTime()}`,
       },
     });
   }
