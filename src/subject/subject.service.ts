@@ -50,8 +50,6 @@ export class SubjectService {
   }
   getAllSubject(query: SearchSubjectQueryDto): Promise<Subject[]> {
     const { textSearch } = query;
-    const numericSearch = parseInt(textSearch);
-    const numericSearchFloat = parseFloat(textSearch);
 
     const searchCriteria = textSearch
       ? {
@@ -61,24 +59,6 @@ export class SubjectService {
             },
             {
               code: { contains: textSearch },
-            },
-            {
-              numberOfCredits: isNaN(numericSearch)
-                ? undefined
-                : { equals: numericSearch },
-            },
-            {
-              numberPrerequisiteCredits: isNaN(numericSearch)
-                ? undefined
-                : { equals: numericSearch },
-            },
-            {
-              numberOfTeachingHours: isNaN(numericSearch)
-                ? undefined
-                : { equals: numericSearch },
-            },
-            {
-              coefficient: isNaN(numericSearch) ? undefined : numericSearchFloat,
             },
             {
               prerequisiteSubjects: {
