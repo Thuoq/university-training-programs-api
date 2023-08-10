@@ -45,9 +45,6 @@ export class RoleService {
             {
               code: { contains: textSearch },
             },
-            {
-              description: { contains: textSearch },
-            },
           ],
         }
       : {};
