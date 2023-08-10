@@ -24,9 +24,7 @@ export class AcademicYearController {
     return await this.academicYearService.createAcademicYear(body);
   }
   @Get()
-  async getListAcademicYear(
-    @Query() query: SearchAcademicYearQueryDto,
-  ): Promise<AcademicYear[]> {
+  async getListAcademicYear(@Query() query: SearchAcademicYearQueryDto) {
     return await this.academicYearService.getListAcademicYear(query);
   }
   @Get(':id')
