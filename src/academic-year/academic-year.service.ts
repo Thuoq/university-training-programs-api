@@ -3,7 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { createAcademicYearDto } from './dtos/createAcademicYear.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchAcademicYearQueryDto } from './dtos/search-academic-year.query.dto';
-
+import { Prisma, AcademicYear, TrainingProgram } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
+import { omit } from 'lodash';
 @Injectable()
 export class AcademicYearService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -24,28 +26,49 @@ export class AcademicYearService {
     }
   }
 
-  getListAcademicYear(query: SearchAcademicYearQueryDto) {
+  async getListAcademicYear(query: SearchAcademicYearQueryDto) {
     const { textSearch } = query;
 
-    const searchCriteria = textSearch
+    const searchCriteria: Prisma.AcademicYearWhereInput = textSearch
       ? {
           OR: [
             {
-              name: { contains: textSearch },
+              name: { contains: textSearch, mode: 'insensitive' },
             },
             {
-              code: { contains: textSearch },
+              code: { contains: textSearch, mode: 'insensitive' },
             },
           ],
         }
       : {};
 
-    return this.prismaService.academicYear.findMany({
+    const academicYears = await this.prismaService.academicYear.findMany({
       where: searchCriteria,
+      include: {
+        trainingPrograms: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
+      },
       orderBy: {
         id: 'desc',
       },
     });
+
+    return academicYears.map((academicYear) => ({
+      ...omit(academicYear, ['trainingPrograms']),
+      canDelete: this.canDeleteAcademicYear(academicYear),
+    }));
+  }
+
+  canDeleteAcademicYear(
+    academicYear: AcademicYear & { trainingPrograms: TrainingProgram[] },
+  ) {
+    const trainingProgramsActive = academicYear.trainingPrograms.filter(
+      (training) => training.isActive === IS_ACTIVE,
+    );
+    return trainingProgramsActive.length === 0;
   }
 
   async getAcademicYear(id: number) {
