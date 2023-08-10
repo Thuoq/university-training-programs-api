@@ -9,10 +9,12 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CreateSubjectDto } from './dtos/createSubject.dto';
 import { SubjectService } from './subject.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchSubjectQueryDto } from './dtos/searchSubject.query.dto';
 
 @ApiTags('Subjects')
 @Controller('subjects')
@@ -20,8 +22,8 @@ export class SubjectController {
   constructor(private readonly subjectService: SubjectService) {}
 
   @Get()
-  async getAllSubject() {
-    return await this.subjectService.getAllSubject();
+  async getAllSubject(@Query() query: SearchSubjectQueryDto) {
+    return await this.subjectService.getAllSubject(query);
   }
 
   @Post()

@@ -12,7 +12,7 @@ export class EmailConfirmationService {
     private readonly emailService: EmailService,
   ) {}
 
-  public sendMail(email: string, password: string, subject: string){
+  public sendMail(email: string, password: string, subject: string) {
     return this.emailService.sendMail({
       to: email,
       subject,
@@ -21,7 +21,7 @@ export class EmailConfirmationService {
   }
 
   async decodeConfirmationToken(token: string) {
-    try { 
+    try {
       const payload = await this.jwtService.verify(token, {
         secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
       });

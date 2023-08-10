@@ -1,7 +1,16 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSectionDto } from './dtos/createSection.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchSectionQueryDto } from './dtos/search-section.query.dto';
+import { Prisma, Section, Employee, Major } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
+import { omit } from 'lodash';
 
 @Injectable()
 export class SectionService {
@@ -22,14 +31,53 @@ export class SectionService {
     }
   }
 
-  getListSection() {
-    return this.prismaService.section.findMany({
+  async getListSection(query: SearchSectionQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria: Prisma.SectionWhereInput = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch, mode: 'insensitive' },
+            },
+            {
+              code: { contains: textSearch, mode: 'insensitive' },
+            },
+            {
+              faculty: {
+                name: { contains: textSearch, mode: 'insensitive' },
+              },
+            },
+          ],
+        }
+      : {};
+
+    const sections = await this.prismaService.section.findMany({
+      where: searchCriteria,
       include: {
         faculty: true,
+        majors: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
+        employees: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
       orderBy: {
         id: 'desc',
       },
+    });
+    return sections.map((section) => {
+      const payload = omit(section, ['employees', 'majors']);
+
+      return {
+        payload,
+        canDelete: this.canDeleteSection(section),
+      };
     });
   }
 
@@ -37,6 +85,18 @@ export class SectionService {
     const section = this.prismaService.section.findFirst({
       where: {
         id: id,
+      },
+      include: {
+        majors: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
+        employees: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
     });
 
@@ -47,8 +107,19 @@ export class SectionService {
     return section;
   }
 
+  canDeleteSection(section: Section & { majors: Major[]; employees: Employee[] }) {
+    const activateMajor = section.majors.filter((major) => major.isActive === IS_ACTIVE);
+    const activateEmployee = section.employees.filter(
+      (employee) => employee.isActive === IS_ACTIVE,
+    );
+
+    return activateMajor.length === 0 && activateEmployee.length === 0;
+  }
+
   async deleteSection(id: number) {
     const section = await this.getSection(id);
+    const canDelete = this.canDeleteSection(section);
+    if (!canDelete) throw new BadRequestException('Can not delete section');
     const today = new Date();
     return this.prismaService.section.update({
       where: {

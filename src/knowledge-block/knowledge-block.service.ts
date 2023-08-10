@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { PrismaService } from '../prisma/prisma.service';
 import { createKnowledgeBlockDto } from './dtos/createKnowledgeBlock.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchKnowledgeBlockQueryDto } from './dtos/searchKnowledgeBlock.dto';
 
 @Injectable()
 export class KnowledgeBlockService {
@@ -22,11 +23,26 @@ export class KnowledgeBlockService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListKnowledgeBlock() {
+  getListKnowledgeBlock(query: SearchKnowledgeBlockQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+              knowledgeParentId: null,
+            },
+            {
+              code: { contains: textSearch },
+              knowledgeParentId: null,
+            },
+          ],
+        }
+      : { knowledgeParentId: null };
+
     return this.prismaService.knowledgeBlock.findMany({
-      where: {
-        knowledgeParentId: null,
-      },
+      where: searchCriteria,
       include: {
         knowledgeChildren: true,
       },

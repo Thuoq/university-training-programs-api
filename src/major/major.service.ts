@@ -2,12 +2,39 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMajorDto } from './dtos/createMajor.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchMajorQueryDto } from './dtos/search-major.query.dto';
 
 @Injectable()
 export class MajorService {
   constructor(private readonly prisma: PrismaService) {}
-  getListMajor() {
+  getListMajor(query: SearchMajorQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+            {
+              section: {
+                name: { contains: textSearch },
+              },
+            },
+            {
+              faculty: {
+                name: { contains: textSearch },
+              },
+            },
+          ],
+        }
+      : {};
+
     return this.prisma.major.findMany({
+      where: searchCriteria,
       include: {
         faculty: true,
         section: true,
@@ -17,6 +44,7 @@ export class MajorService {
       },
     });
   }
+
   async getMajorUnique(value: number) {
     const major = await this.prisma.major.findUnique({
       where: {

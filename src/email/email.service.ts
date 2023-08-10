@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as Mail from 'nodemailer/lib/mailer';
 import { ConfigService } from '@nestjs/config';
 import { createTransport } from 'nodemailer';
-import { JwtService } from '@nestjs/jwt';
+// import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class EmailService {
@@ -10,7 +10,7 @@ export class EmailService {
 
   constructor(private readonly configService: ConfigService) {
     this.nodemailerTransport = createTransport({
-      service: configService.get('EMAIL_SERVICE'),  
+      service: configService.get('EMAIL_SERVICE'),
       auth: {
         user: configService.get('EMAIL_USER'),
         pass: configService.get('EMAIL_PASSWORD'),

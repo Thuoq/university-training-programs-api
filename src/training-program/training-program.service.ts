@@ -4,6 +4,7 @@ import { MajorService } from 'src/major/major.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrainingProgramDto } from './dtos/createTrainingProgram.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchTrainingProgramQueryDto } from './dtos/searchTrainingProgram.dto';
 
 @Injectable()
 export class TrainingProgramService {
@@ -33,11 +34,36 @@ export class TrainingProgramService {
     }
   }
 
-  getListTrainingProgram() {
+  getListTrainingProgram(query: SearchTrainingProgramQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+            {
+              marjor: {
+                name: { contains: textSearch },
+              },
+            },
+            {
+              academicYear: {
+                name: { contains: textSearch },
+              },
+            },
+          ],
+        }
+      : {};
     return this.prismaService.trainingProgram.findMany({
       orderBy: {
         id: 'desc',
       },
+      where: searchCriteria,
       include: {
         marjor: true,
         academicYear: true,
