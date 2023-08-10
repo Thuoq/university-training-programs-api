@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { createFacultyDto } from './dtos/createFaculty.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchFacultyQueryDto } from './dtos/search-faculty.query.dto';
-import { Faculty, Section } from '@prisma/client';
+import { Faculty, Section, Prisma } from '@prisma/client';
 
 @Injectable()
 export class FacultyService {
@@ -30,14 +30,14 @@ export class FacultyService {
   async getListFaculty(query: SearchFacultyQueryDto) {
     const { textSearch } = query;
 
-    const searchCriteria = textSearch
+    const searchCriteria: Prisma.FacultyWhereInput = textSearch
       ? {
           OR: [
             {
-              name: { contains: textSearch },
+              name: { contains: textSearch, mode: 'insensitive' },
             },
             {
-              code: { contains: textSearch },
+              code: { contains: textSearch, mode: 'insensitive' },
             },
           ],
         }
