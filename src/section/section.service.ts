@@ -75,7 +75,7 @@ export class SectionService {
       const payload = omit(section, ['employees', 'majors']);
 
       return {
-        payload,
+        ...payload,
         canDelete: this.canDeleteSection(section),
       };
     });
