@@ -1,54 +1,79 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMajorDto } from './dtos/createMajor.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchMajorQueryDto } from './dtos/search-major.query.dto';
-
+import { Prisma, Major, TrainingProgram } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
+import { omit } from 'lodash';
 @Injectable()
 export class MajorService {
   constructor(private readonly prisma: PrismaService) {}
-  getListMajor(query: SearchMajorQueryDto) {
+  async getListMajor(query: SearchMajorQueryDto) {
     const { textSearch } = query;
 
-    const searchCriteria = textSearch
+    const searchCriteria: Prisma.MajorWhereInput = textSearch
       ? {
           OR: [
             {
-              name: { contains: textSearch },
+              name: { contains: textSearch, mode: 'insensitive' },
             },
             {
-              code: { contains: textSearch },
-            },
-            {
-              section: {
-                name: { contains: textSearch },
-              },
-            },
-            {
-              faculty: {
-                name: { contains: textSearch },
-              },
+              code: { contains: textSearch, mode: 'insensitive' },
             },
           ],
         }
       : {};
 
-    return this.prisma.major.findMany({
+    const majors = await this.prisma.major.findMany({
       where: searchCriteria,
       include: {
         faculty: true,
         section: true,
+        trainingPrograms: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
       orderBy: {
         id: 'desc',
       },
     });
+
+    return majors.map((major) => {
+      const canDelete = this.canDeleteMajor(major);
+      return {
+        ...omit(major, ['trainingPrograms']),
+        canDelete,
+      };
+    });
+  }
+
+  canDeleteMajor(major: Major & { trainingPrograms: TrainingProgram[] }) {
+    const trainingProgramsActivate = major.trainingPrograms.filter(
+      (element) => element.isActive,
+    );
+    return trainingProgramsActivate.length === 0;
   }
 
   async getMajorUnique(value: number) {
     const major = await this.prisma.major.findUnique({
       where: {
         id: value,
+      },
+      include: {
+        trainingPrograms: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
     });
     if (!major) {
@@ -73,6 +98,10 @@ export class MajorService {
   async deleteMajor(id: number) {
     const today = new Date();
     const major = await this.getMajorUnique(id);
+
+    const canDelete = this.canDeleteMajor(major);
+
+    if (!canDelete) throw new BadRequestException();
     return this.prisma.major.update({
       where: {
         id,
