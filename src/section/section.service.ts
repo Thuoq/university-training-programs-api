@@ -119,7 +119,7 @@ export class SectionService {
   async deleteSection(id: number) {
     const section = await this.getSection(id);
     const canDelete = this.canDeleteSection(section);
-    if (!canDelete) throw new BadRequestException('Can not delete section');
+    if (!canDelete) throw new BadRequestException();
     const today = new Date();
     return this.prismaService.section.update({
       where: {

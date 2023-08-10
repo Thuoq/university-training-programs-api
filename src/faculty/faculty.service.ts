@@ -92,7 +92,7 @@ export class FacultyService {
 
     const canDelete = this.canDeleteFaculty(faculty);
 
-    if (!canDelete) throw new BadRequestException('KO dc xoa');
+    if (!canDelete) throw new BadRequestException();
 
     const today = new Date();
     return this.prismaService.faculty.update({

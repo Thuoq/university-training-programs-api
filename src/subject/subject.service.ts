@@ -1,10 +1,17 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateSubjectDto, PrerequisiteSubjectsId } from './dtos/createSubject.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Subject } from '@prisma/client';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchSubjectQueryDto } from './dtos/searchSubject.query.dto';
-
+import { Prisma, Subject, TrainingProgramContent } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
+import { omit } from 'lodash';
 @Injectable()
 export class SubjectService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -41,6 +48,11 @@ export class SubjectService {
       },
       include: {
         prerequisiteSubjects: true,
+        trainingProgramContents: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
     });
     if (!subject) {
@@ -48,22 +60,22 @@ export class SubjectService {
     }
     return subject;
   }
-  getAllSubject(query: SearchSubjectQueryDto): Promise<Subject[]> {
+  async getAllSubject(query: SearchSubjectQueryDto): Promise<Subject[]> {
     const { textSearch } = query;
 
-    const searchCriteria = textSearch
+    const searchCriteria: Prisma.SubjectWhereInput = textSearch
       ? {
           OR: [
             {
-              name: { contains: textSearch },
+              name: { contains: textSearch, mode: 'insensitive' },
             },
             {
-              code: { contains: textSearch },
+              code: { contains: textSearch, mode: 'insensitive' },
             },
             {
               prerequisiteSubjects: {
                 some: {
-                  code: { contains: textSearch },
+                  code: { contains: textSearch, mode: 'insensitive' },
                 },
               },
             },
@@ -71,18 +83,39 @@ export class SubjectService {
         }
       : {};
 
-    return this.prismaService.subject.findMany({
+    const subjects = await this.prismaService.subject.findMany({
       where: searchCriteria,
       include: {
         prerequisiteSubjects: true,
+        trainingProgramContents: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
       orderBy: {
         id: 'desc',
       },
     });
+
+    return subjects.map((sub) => ({
+      ...omit(sub, ['trainingProgramContents']),
+      canDelete: this.canDeleteSubject(sub),
+    }));
+  }
+
+  canDeleteSubject(
+    subject: Subject & { trainingProgramContents: TrainingProgramContent[] },
+  ) {
+    const contentActive = subject.trainingProgramContents.filter(
+      (training) => training.isActive === IS_ACTIVE,
+    );
+    return contentActive.length === 0;
   }
   async deleteSubject(id: number): Promise<Subject> {
     const subject = await this.getSubjectById(id);
+    const canDelete = this.canDeleteSubject(subject);
+    if (!canDelete) throw new BadRequestException();
     const today = new Date();
     return this.prismaService.subject.update({
       where: {

@@ -1,11 +1,19 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AcademicYearService } from 'src/academic-year/academic-year.service';
 import { MajorService } from 'src/major/major.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrainingProgramDto } from './dtos/createTrainingProgram.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchTrainingProgramQueryDto } from './dtos/searchTrainingProgram.dto';
-
+import { Prisma, TrainingProgramContent, TrainingProgram } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
+import { omit } from 'lodash';
 @Injectable()
 export class TrainingProgramService {
   constructor(
@@ -34,32 +42,22 @@ export class TrainingProgramService {
     }
   }
 
-  getListTrainingProgram(query: SearchTrainingProgramQueryDto) {
+  async getListTrainingProgram(query: SearchTrainingProgramQueryDto) {
     const { textSearch } = query;
 
-    const searchCriteria = textSearch
+    const searchCriteria: Prisma.TrainingProgramWhereInput = textSearch
       ? {
           OR: [
             {
-              name: { contains: textSearch },
+              name: { contains: textSearch, mode: 'insensitive' },
             },
             {
-              code: { contains: textSearch },
-            },
-            {
-              marjor: {
-                name: { contains: textSearch },
-              },
-            },
-            {
-              academicYear: {
-                name: { contains: textSearch },
-              },
+              code: { contains: textSearch, mode: 'insensitive' },
             },
           ],
         }
       : {};
-    return this.prismaService.trainingProgram.findMany({
+    const trainingPrograms = await this.prismaService.trainingProgram.findMany({
       orderBy: {
         id: 'desc',
       },
@@ -68,12 +66,31 @@ export class TrainingProgramService {
         marjor: true,
         academicYear: true,
         trainingProgramContents: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
           include: {
             subject: true,
           },
         },
       },
     });
+
+    return trainingPrograms.map((training) => ({
+      ...omit(training, ['trainingProgramContents']),
+      canDelete: this.canDeleteTrainingProgram(training),
+    }));
+  }
+
+  canDeleteTrainingProgram(
+    trainingProgram: TrainingProgram & {
+      trainingProgramContents: TrainingProgramContent[];
+    },
+  ) {
+    const trainingProgramContentActive = trainingProgram.trainingProgramContents.filter(
+      (content) => content.isActive === IS_ACTIVE,
+    );
+    return trainingProgramContentActive.length === 0;
   }
 
   async getTrainingProgramByUnique(id: number) {
@@ -85,6 +102,9 @@ export class TrainingProgramService {
         marjor: true,
         academicYear: true,
         trainingProgramContents: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
           include: {
             subject: true,
           },
@@ -100,6 +120,9 @@ export class TrainingProgramService {
 
   async deleteTrainingProgram(id: number) {
     const trainingProgram = await this.getTrainingProgramByUnique(id);
+    const canDelete = this.canDeleteTrainingProgram(trainingProgram);
+
+    if (!canDelete) throw new BadRequestException();
     const today = new Date();
     return this.prismaService.trainingProgram.update({
       where: {

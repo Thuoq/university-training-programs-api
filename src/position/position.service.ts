@@ -1,9 +1,17 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from './dtos/createPosition.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchPositionQueryDto } from './dtos/searchPosition.dto';
-
+import { Prisma, PositionEmployee, Position } from '@prisma/client';
+import { IS_ACTIVE } from '../constant/models';
+import { omit } from 'lodash';
 @Injectable()
 export class PositionService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -23,29 +31,54 @@ export class PositionService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListPosition(query: SearchPositionQueryDto) {
+  async getListPosition(query: SearchPositionQueryDto) {
     const { textSearch } = query;
 
-    const searchCriteria = textSearch
+    const searchCriteria: Prisma.PositionWhereInput = textSearch
       ? {
           OR: [
             {
-              name: { contains: textSearch },
+              name: { contains: textSearch, mode: 'insensitive' },
             },
             {
-              code: { contains: textSearch },
+              code: { contains: textSearch, mode: 'insensitive' },
             },
           ],
         }
       : {};
-    return this.prismaService.position.findMany({
+    const listPosition = await this.prismaService.position.findMany({
       where: searchCriteria,
+      include: {
+        positionEmployees: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
+      },
     });
+
+    return listPosition.map((position) => ({
+      ...omit(position, ['positionEmployees']),
+      canDelete: this.canDeletePosition(position),
+    }));
+  }
+  canDeletePosition(position: Position & { positionEmployees: PositionEmployee[] }) {
+    const positionEmpActive = position.positionEmployees.filter(
+      (poE) => poE.isActive === IS_ACTIVE,
+    );
+    return positionEmpActive.length === 0;
   }
   async getPosition(id: number) {
     const position = await this.prismaService.position.findUnique({
       where: {
         id,
+      },
+      include: {
+        positionEmployees: {
+          where: {
+            isActive: IS_ACTIVE,
+          },
+        },
       },
     });
     if (!position) {
@@ -55,6 +88,9 @@ export class PositionService {
   }
   async deletePosition(id: number) {
     const pos = await this.getPosition(id);
+    const canDelete = this.canDeletePosition(pos);
+
+    if (!canDelete) throw new BadRequestException();
     const today = new Date();
     return this.prismaService.position.update({
       where: {
