@@ -8,6 +8,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { createFacultyDto } from './dtos/createFaculty.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchFacultyQueryDto } from './dtos/search-faculty.query.dto';
+import { Faculty, Section, Prisma } from '@prisma/client';
 
 @Injectable()
 export class FacultyService {
@@ -25,17 +27,59 @@ export class FacultyService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListFaculty() {
-    return this.prismaService.faculty.findMany({
+  async getListFaculty(query: SearchFacultyQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria: Prisma.FacultyWhereInput = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch, mode: 'insensitive' },
+            },
+            {
+              code: { contains: textSearch, mode: 'insensitive' },
+            },
+          ],
+        }
+      : {};
+
+    const listFaculty = await this.prismaService.faculty.findMany({
+      where: searchCriteria,
       orderBy: {
         id: 'desc',
       },
+      include: {
+        sections: {
+          where: {
+            isActive: true,
+          },
+        },
+      },
     });
+
+    return listFaculty.map((faculty) => ({
+      ...faculty,
+      canDelete: this.canDeleteFaculty(faculty),
+    }));
   }
+
+  canDeleteFaculty(faculty: Faculty & { sections: Section[] }) {
+    const sectionsActive = faculty.sections.filter((section) => section.isActive);
+
+    return sectionsActive.length === 0;
+  }
+
   async getFaculty(id: number) {
     const faculty = await this.prismaService.faculty.findUnique({
       where: {
         id,
+      },
+      include: {
+        sections: {
+          where: {
+            isActive: true,
+          },
+        },
       },
     });
     if (!faculty) {
@@ -44,14 +88,19 @@ export class FacultyService {
     return faculty;
   }
   async deleteFaculty(id: number) {
-    const facility = await this.getFaculty(id);
+    const faculty = await this.getFaculty(id);
+
+    const canDelete = this.canDeleteFaculty(faculty);
+
+    if (!canDelete) throw new BadRequestException('KO dc xoa');
+
     const today = new Date();
     return this.prismaService.faculty.update({
       where: {
         id,
       },
       data: {
-        code: `${facility.id}-${facility.code}-${today.getTime()}`,
+        code: `${faculty.id}-${faculty.code}-${today.getTime()}`,
         isActive: false,
       },
     });

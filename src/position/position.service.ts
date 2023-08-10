@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from './dtos/createPosition.dto';
 import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
+import { SearchPositionQueryDto } from './dtos/searchPosition.dto';
 
 @Injectable()
 export class PositionService {
@@ -22,8 +23,24 @@ export class PositionService {
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  getListPosition() {
-    return this.prismaService.position.findMany({});
+  getListPosition(query: SearchPositionQueryDto) {
+    const { textSearch } = query;
+
+    const searchCriteria = textSearch
+      ? {
+          OR: [
+            {
+              name: { contains: textSearch },
+            },
+            {
+              code: { contains: textSearch },
+            },
+          ],
+        }
+      : {};
+    return this.prismaService.position.findMany({
+      where: searchCriteria,
+    });
   }
   async getPosition(id: number) {
     const position = await this.prismaService.position.findUnique({

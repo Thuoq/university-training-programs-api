@@ -7,6 +7,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   imports: [PrismaModule],
   providers: [SectionService],
   controllers: [SectionController],
-  exports: [SectionService]
+  exports: [SectionService],
 })
 export class SectionModule {}

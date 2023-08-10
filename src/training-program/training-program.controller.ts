@@ -7,10 +7,12 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateTrainingProgramDto } from './dtos/createTrainingProgram.dto';
 import { TrainingProgramService } from './training-program.service';
+import { SearchTrainingProgramQueryDto } from './dtos/searchTrainingProgram.dto';
 
 @ApiTags('Training Programs')
 @Controller('training-programs')
@@ -23,8 +25,8 @@ export class TrainingProgramController {
   }
 
   @Get()
-  async getListTrainingProgram() {
-    return await this.trainingProgramService.getListTrainingProgram();
+  async getListTrainingProgram(@Query() query: SearchTrainingProgramQueryDto) {
+    return await this.trainingProgramService.getListTrainingProgram(query);
   }
 
   @Get(':id')

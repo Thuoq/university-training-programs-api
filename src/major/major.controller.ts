@@ -7,18 +7,21 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { MajorService } from './major.service';
 import { CreateMajorDto } from './dtos/createMajor.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { query } from 'express';
+import { SearchMajorQueryDto } from './dtos/search-major.query.dto';
 
 @ApiTags('Major')
 @Controller('majors')
 export class MajorController {
   constructor(private readonly majorService: MajorService) {}
   @Get()
-  async getListMajor() {
-    return await this.majorService.getListMajor();
+  async getListMajor(@Query() query: SearchMajorQueryDto) {
+    return await this.majorService.getListMajor(query);
   }
   @Post()
   async createMajor(@Body() payload: CreateMajorDto) {

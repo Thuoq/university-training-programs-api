@@ -1,15 +1,16 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CreateEmployeeDto } from './dtos/createEmployee.dto';
 import { EmployeeService } from './employee.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchEmployeeQueryDto } from './dtos/searchEmployee.dto';
 
 @ApiTags('Employees')
 @Controller('employees')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
   @Get()
-  async getListEmployee() {
-    return await this.employeeService.getListEmployee();
+  async getListEmployee(@Query() query: SearchEmployeeQueryDto) {
+    return await this.employeeService.getListEmployee(query);
   }
   @Post()
   async createEmployee(@Body() body: CreateEmployeeDto) {

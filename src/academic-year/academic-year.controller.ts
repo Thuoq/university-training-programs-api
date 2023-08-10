@@ -37,7 +37,6 @@ export class AcademicYearController {
   async deleteAcademicYear(@Param('id', ParseIntPipe) id: number): Promise<AcademicYear> {
     return await this.academicYearService.deleteAcademicYear(id);
   }
-
   @Put(':id')
   async updateAcademicYear(
     @Param('id', ParseIntPipe) id: number,

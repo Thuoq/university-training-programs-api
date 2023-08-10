@@ -59,6 +59,7 @@ export class AcademicYearService {
     }
     return academicYear;
   }
+
   async deleteAcademicYear(id: number) {
     const accademy = await this.getAcademicYear(id);
     const today = new Date();
