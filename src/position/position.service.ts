@@ -11,7 +11,7 @@ import { PostgresErrorCode } from '../prisma/postgresErrorCodes.enum';
 import { SearchPositionQueryDto } from './dtos/searchPosition.dto';
 import { Prisma, PositionEmployee, Position } from '@prisma/client';
 import { IS_ACTIVE } from '../constant/models';
-import { omit } from 'lodash';
+import { omit, uniq } from 'lodash';
 @Injectable()
 export class PositionService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -111,5 +111,17 @@ export class PositionService {
       },
       data: payload,
     });
+  }
+  async getListPositionByIds(positionIds: number[]) {
+    if (!positionIds.length) throw new BadRequestException();
+    const positions = await this.prismaService.position.findMany({
+      where: {
+        id: {
+          in: uniq(positionIds),
+        },
+      },
+    });
+
+    return positions;
   }
 }
