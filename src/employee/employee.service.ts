@@ -34,6 +34,9 @@ export class EmployeeService {
           },
         },
         positionEmployees: {
+          where: {
+            isActive: true,
+          },
           select: {
             position: {
               select: {
@@ -57,15 +60,21 @@ export class EmployeeService {
       const departmentPromise = payload.departmentId
         ? this.departmentService.getDepartment(payload.departmentId)
         : [];
-      const positionPromise = payload.positionId
-        ? this.positionService.getPosition(payload.positionId)
-        : [];
+      const positionPromise = this.positionService.getListPositionByIds(
+        payload.positionIds,
+      );
       await Promise.all([facultyPromise, departmentPromise, positionPromise]);
-      const { positionId, ...bodyCreateEmployee } = payload;
+      const { positionIds, ...bodyCreateEmployee } = payload;
       const employee = await this.prismaService.employee.create({
-        data: bodyCreateEmployee,
+        data: {
+          ...bodyCreateEmployee,
+          positionEmployees: {
+            createMany: {
+              data: positionIds.map((id) => ({ positionId: id })),
+            },
+          },
+        },
       });
-      await this.createEmployeePosition(employee.id, positionId);
       return employee;
     } catch (error) {
       console.log(error);
@@ -93,26 +102,6 @@ export class EmployeeService {
             {
               employeeCode: { contains: textSearch },
             },
-            {
-              faculty: {
-                name: { contains: textSearch },
-              },
-            },
-            {
-              department: {
-                name: { contains: textSearch },
-              },
-            },
-            {
-              section: {
-                name: { contains: textSearch },
-              },
-            },
-            {
-              role: {
-                name: { contains: textSearch },
-              },
-            },
           ],
         }
       : {};
@@ -122,6 +111,9 @@ export class EmployeeService {
       include: {
         role: true,
         positionEmployees: {
+          where: {
+            isActive: true,
+          },
           include: {
             position: true,
           },
@@ -130,13 +122,8 @@ export class EmployeeService {
         department: true,
         section: true,
       },
-    });
-  }
-  createEmployeePosition(employeeId: number, positionId: number) {
-    return this.prismaService.positionEmployee.create({
-      data: {
-        employeeId,
-        positionId,
+      orderBy: {
+        id: 'desc',
       },
     });
   }
@@ -152,45 +139,31 @@ export class EmployeeService {
     });
   }
 
-  async getPositionEmployee(positionId: number, employeeId: number) {
-    const positionEmployee = await this.prismaService.positionEmployee.findFirst({
-      where: {
-        employeeId: employeeId,
-      },
-    });
-    if (!positionEmployee) {
-      throw new HttpException('Dữ liệu không hợp lệ', HttpStatus.BAD_REQUEST);
-    }
-    return positionEmployee;
-  }
-
-  async updatePositionEmployee(employeeId: number, positionId: number) {
-    await this.positionService.getPosition(positionId);
-    return this.prismaService.positionEmployee.update({
-      where: {
-        id: employeeId,
-      },
-      data: {
-        positionId: positionId,
-      },
-    });
-  }
   async updateEmployee(code: string, payload: CreateEmployeeDto) {
     const employee = await this.getEmployeeByUnique(code);
-    const employeePosition = await this.getPositionEmployee(
-      payload.positionId,
-      employee.id,
-    );
+
     const employeeUpdated = this.prismaService.$transaction(async (transaction) => {
-      if (payload.positionId) {
-        await this.updatePositionEmployee(employeePosition.id, payload.positionId);
-      }
-      const { positionId, password, ...payloadUpdateEmployee } = payload;
-      return this.prismaService.employee.update({
+      const { positionIds, password, ...payloadUpdateEmployee } = payload;
+      return transaction.employee.update({
         where: {
           id: employee.id,
         },
-        data: payloadUpdateEmployee,
+        data: {
+          ...payloadUpdateEmployee,
+          positionEmployees: {
+            updateMany: {
+              where: {
+                employeeId: employee.id,
+              },
+              data: {
+                isActive: false,
+              },
+            },
+            createMany: {
+              data: positionIds.map((id) => ({ positionId: id })),
+            },
+          },
+        },
       });
     });
     return employeeUpdated;
